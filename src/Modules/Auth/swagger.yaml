@@ -175,7 +175,7 @@ paths:
                 - email
       responses:
         '200':
-          description: Password reset successfully
+          description: Password reset token sent successfully
           content:
             application/json:
               schema:
@@ -185,6 +185,47 @@ paths:
                     type: string
         '404':
           description: User not found
+        '403':
+          description: A password reset token has already been sent to your email
+        '400':
+          description: Validation error
+
+  /auth/confirm-reset-password:
+    post:
+      tags:
+        - auth
+      summary: Confirm password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                token:
+                  type: string
+                newPassword:
+                  type: string
+              required:
+                - email
+                - token
+                - newPassword
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Invalid or expired reset token
+        '403':
+          description: Reset token has expired
         '400':
           description: Validation error
 

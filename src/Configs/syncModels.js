@@ -53,6 +53,7 @@ import JobOfferRequest from '../Modules/JobOfferRequest/JobOfferRequestModel.js'
 import Plan from '../Modules/Plan/PlanModel.js';
 import PlanUser from '../Modules/PlanUser/PlanUserModel.js';
 import LikePost from '../Modules/LikePost/LikePostModel.js';
+import ResetPassword from '../Modules/ResetPassword/ResetPasswordModel.js';
 
 const syncModels = async () => {
     const sequelize = await SequelizeConfig();
@@ -63,7 +64,8 @@ const syncModels = async () => {
             PostReport, Permission, Role, PermissionRole, RoleUser, UserActivity, TagUserActivity, Skill, Company, Project,
             ProjectRequest, ProjectTask, ProjectReport, CompanyReport, CompanyMember, TaskRequest, Page, Setting, FaqCategory,
             Faq, Story, ProjectPro, JobOffer, JobOfferReport, GroupMember, GroupAdmin, Email, ProjectSkill,
-            TaskComment, GroupRequest, JobOfferRequest, Plan, PlanUser, LikePost
+            TaskComment, GroupRequest, JobOfferRequest, Plan, PlanUser, LikePost,
+            ResetPassword,
         ];
 
         for (const model of models) {
