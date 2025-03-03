@@ -37,10 +37,6 @@ function swaggerConfig(app) {
     const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
     app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerDocs, { explorer: true }));
-    app.get('/swagger',(req,res) => {
-        res.send('swagger')
-    })
-
 
 }
 
