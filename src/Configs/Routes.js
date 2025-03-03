@@ -1,16 +1,17 @@
 import express from 'express';
 import authRoutes from '../Modules/Auth/Routes.js';
+import auth from '../Middlewares/Auth.js';
 
 function Routes(app) {
     
     app.use(express.json());
 
-    app.get('/', (req, res) => {
+    app.get('/', auth ,(req, res) => {
         return res.send("Hello NodeJS");
     });
 
     // Authentication routes
-    app.use('/auth', authRoutes);
+    app.use('/auth',auth, authRoutes);
 
     // Start the server
     const PORT = process.env.PORT || 5000;

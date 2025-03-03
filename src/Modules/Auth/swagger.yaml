@@ -13,6 +13,7 @@ tags:
     description: Authentication related endpoints
 
 paths:
+
   /auth/register:
     post:
       tags:
