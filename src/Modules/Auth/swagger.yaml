@@ -1,19 +1,22 @@
 openapi: 3.0.0
 info:
-  title: User Management API
+  title: Social API
+  description: API documentation for the Social project
   version: 1.0.0
-  description: API for user registration, login, and OTP verification.
+
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:5000
+    description: Local server
+
 tags:
-  - name: Authentication
-    description: API endpoints for user authentication
+  - name: auth
+    description: Authentication related endpoints
 
 paths:
-  /register:
+  /auth/register:
     post:
       tags:
-        - Authentication
+        - auth
       summary: Register a new user
       requestBody:
         required: true
@@ -26,7 +29,6 @@ paths:
                   type: string
                 email:
                   type: string
-                  format: email
                 password:
                   type: string
                 repeat_password:
@@ -45,19 +47,19 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: object
+                    $ref: '#/components/schemas/User'
                   message:
                     type: string
+        '409':
+          description: User already exists
         '400':
-          description: Bad request
-        '500':
-          description: Internal server error
+          description: Validation error
 
-  /login:
+  /auth/login:
     post:
       tags:
-        - Authentication
-      summary: Login user
+        - auth
+      summary: Login a user
       requestBody:
         required: true
         content:
@@ -67,7 +69,6 @@ paths:
               properties:
                 email:
                   type: string
-                  format: email
                 password:
                   type: string
               required:
@@ -89,14 +90,14 @@ paths:
           description: User not found
         '403':
           description: Invalid password
-        '500':
-          description: Internal server error
+        '400':
+          description: Validation error
 
-  /send-otp:
+  /auth/send-otp:
     post:
       tags:
-        - Authentication
-      summary: Send OTP to user email
+        - auth
+      summary: Send OTP to user's email
       requestBody:
         required: true
         content:
@@ -106,24 +107,28 @@ paths:
               properties:
                 email:
                   type: string
-                  format: email
               required:
                 - email
       responses:
         '200':
           description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '404':
           description: User not found
         '400':
-          description: User already active or OTP already sent
-        '500':
-          description: Internal server error
+          description: Validation error
 
-  /check-otp:
+  /auth/check-otp:
     post:
       tags:
-        - Authentication
-      summary: Check OTP for user activation
+        - auth
+      summary: Check OTP
       requestBody:
         required: true
         content:
@@ -137,10 +142,66 @@ paths:
                 - otp
       responses:
         '200':
-          description: User is now active 
+          description: User is now active
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '404':
           description: OTP not found
         '403':
           description: OTP has expired
-        '500':
-          description: Internal server error
+        '400':
+          description: Validation error
+
+  /auth/reset-password:
+    post:
+      tags:
+        - auth
+      summary: Reset password and send new password to user's email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: User not found
+        '400':
+          description: Validation error
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
