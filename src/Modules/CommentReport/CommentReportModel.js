@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Comment from '../Comment/CommentModel'; // Adjust the path as necessary
-import User from '../User/UserModel'; // Adjust the path as necessary
-import Report from '../Report/ReportModel'; // Adjust the path as necessary
+import Comment from '../Comment/CommentModel.js'; // Adjust the path as necessary
+import User from '../User/UserModel.js'; // Adjust the path as necessary
+import Report from '../Report/ReportModel.js'; // Adjust the path as necessary
 
 const CommentReport = sequelize.define('CommentReport', {
     id: {

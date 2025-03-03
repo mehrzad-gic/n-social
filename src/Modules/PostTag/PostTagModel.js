@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Post from '../Post/PostModel'; // Adjust the path as necessary
-import Tag from '../Tag/TagModel'; // Adjust the path as necessary
+import Post from '../Post/PostModel.js'; // Adjust the path as necessary
+import Tag from '../Tag/TagModel.js'; // Adjust the path as necessary
 
 const PostTag = sequelize.define('PostTag', {
     id: {

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import pool from '../Configs/Mysql2';
+import pool from '../Configs/Mysql2.js';
 
 
 async function makeHashPassword(password) {
@@ -34,13 +34,6 @@ async function makeSlug(name, table) {
 }
 
 
-async function makeHashPassword(password) {
-    return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-async function verifyHashPassword(hash, password) {
-    return hash === await makeHashPassword(password);
-}
 
 function makeOTP() {
     // Generate 6-character code

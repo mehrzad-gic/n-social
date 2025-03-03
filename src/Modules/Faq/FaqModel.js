@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import FaqCategory from '../FaqCategory/FaqCategoryModel'; // Adjust the path as necessary
+import FaqCategory from '../FaqCategory/FaqCategoryModel.js'; // Adjust the path as necessary
 
 const Faq = sequelize.define('Faq', {
     id: {

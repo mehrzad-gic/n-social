@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Post from '../Post/PostModel'; // Adjust the path as necessary
-import Reaction from '../Reaction/ReactionModel'; // Adjust the path as necessary
+import Post from '../Post/PostModel.js'; // Adjust the path as necessary
+import Reaction from '../Reaction/ReactionModel.js'; // Adjust the path as necessary
 
 const PostReaction = sequelize.define('PostReaction', {
     id: {

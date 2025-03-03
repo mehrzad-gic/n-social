@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Post from '../Post/PostModel'; // Adjust the path as necessary
-import Report from '../Report/ReportModel'; // Adjust the path as necessary
+import Post from '../Post/PostModel.js'; // Adjust the path as necessary
+import Report from '../Report/ReportModel.js'; // Adjust the path as necessary
 
 const PostReport = sequelize.define('PostReport', {
     id: {

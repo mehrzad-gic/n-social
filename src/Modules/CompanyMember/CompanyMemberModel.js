@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Company from '../Company/CompanyModel'; // Adjust the path as necessary
-import User from '../User/UserModel'; // Adjust the path as necessary
+import Company from '../Company/CompanyModel.js'; // Adjust the path as necessary
+import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const CompanyMember = sequelize.define('CompanyMember', {
     id: {

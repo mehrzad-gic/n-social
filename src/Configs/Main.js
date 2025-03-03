@@ -1,6 +1,6 @@
 import express from 'express';
 import swaggerConfig from './Swagger.js';
-import SequelizeConfig from './Sequelize.js'; // Adjust the path if necessary
+import {SequelizeConfig} from './Sequelize.js'; // Adjust the path if necessary
 import Express from './Express.js';
 import Errors from './Errors.js';
 import Routes from './Routes.js';

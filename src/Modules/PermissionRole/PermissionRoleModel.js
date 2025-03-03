@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Permission from '../Permission/PermissionModel'; // Adjust the path as necessary
-import Role from '../Role/RoleModel'; // Adjust the path as necessary
+import Permission from '../Permission/PermissionModel.js'; // Adjust the path as necessary
+import Role from '../Role/RoleModel.js'; // Adjust the path as necessary
 
 const PermissionRole = sequelize.define('PermissionRole', {
     id: {

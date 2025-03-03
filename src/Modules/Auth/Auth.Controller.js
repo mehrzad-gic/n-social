@@ -1,7 +1,8 @@
-import User from "../User/UserModel";
-import { checkExistByField, makeOTP, verifyHashPassword, sendMail, hashPassword } from "../../Helpers/Helper.js";
+import User from "../User/UserModel.js";
+import { checkExistByField, makeOTP, verifyHashPassword, makeHashPassword } from "../../Helpers/Helper.js";
+import { sendMail } from "../../Helpers/NodeMailer.js";
 import createHttpError from "http-errors";
-import OTP from "./OtpModel.js";
+import OTP from "../Otp/OtpModel.js";
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema, resetPasswordSchema } from './validation.js';
 
@@ -89,7 +90,7 @@ async function resetPassword(req, res, next) {
         const user = await checkExistByField('email', email, 'users');
         if (!user) throw new createHttpError.NotFound("User Not Found");
         const newPassword = generateRandomPassword();
-        user.password = await hashPassword(newPassword);
+        user.password = await makeHashPassword(newPassword);
         await user.save();
         const subject = 'Your New Password';
         const text = `Your new password is: ${newPassword}`;

@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Tag from '../Tag/TagModel'; // Adjust the path as necessary
+import Tag from '../Tag/TagModel.js'; // Adjust the path as necessary
 
 const UserActivity = sequelize.define('UserActivity', {
     id: {

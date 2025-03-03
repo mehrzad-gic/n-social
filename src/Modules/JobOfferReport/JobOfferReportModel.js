@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel'; // Adjust the path as necessary
-import Reject from '../Reject/RejectModel'; // Adjust the path as necessary
+import User from '../User/UserModel.js'; // Adjust the path as necessary
+import Reject from '../Reject/RejectModel.js'; // Adjust the path as necessary
 
 const JobOfferReport = sequelize.define('JobOfferReport', {
     id: {

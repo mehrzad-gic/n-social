@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import ProjectCategory from '../ProjectCategory/ProjectCategoryModel'; // Adjust the path as necessary
+import ProjectCategory from '../ProjectCategory/ProjectCategoryModel.js'; // Adjust the path as necessary
 
 const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
     id: {

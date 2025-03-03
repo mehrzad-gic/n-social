@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Project from '../Project/ProjectModel'; // Adjust the path as necessary
-import Skill from '../Skill/SkillModel'; // Adjust the path as necessary
+import Project from '../Project/ProjectModel.js'; // Adjust the path as necessary
+import Skill from '../Skill/SkillModel.js'; // Adjust the path as necessary
 
 const ProjectSkill = sequelize.define('ProjectSkill', {
     id: {
