@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../../config/database'; // Adjust the path as necessary
+import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
 import Post from '../Post/PostModel'; // Adjust the path as necessary
 import Reaction from '../Reaction/ReactionModel'; // Adjust the path as necessary
 

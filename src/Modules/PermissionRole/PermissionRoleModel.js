@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../../config/database'; // Adjust the path as necessary
+import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
 import Permission from '../Permission/PermissionModel'; // Adjust the path as necessary
 import Role from '../Role/RoleModel'; // Adjust the path as necessary
 

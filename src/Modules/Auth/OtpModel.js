@@ -1,5 +1,5 @@
 import { BIGINT , STRING } from "sequelize";
-import SequelizeConfig from "../../Configs/sequelize";
+import SequelizeConfig from "../../Configs/Sequelize.js";
 
 const OTP = SequelizeConfig.define('otp',{
     id: {
