@@ -1,38 +1,55 @@
 import User from "../User/UserModel.js";
 import ResetPassword from "../ResetPassword/ResetPasswordModel.js";
-import { checkExistByField, makeOTP, verifyHashPassword, generateRandomPassword, makeHashPassword } from "../../Helpers/Helper.js";
+import { checkExistByField, makeOTP, verifyHashPassword, generateRandomPassword, makeHashPassword, makeSlug } from "../../Helpers/Helper.js";
 import { sendMail } from "../../Helpers/NodeMailer.js";
 import createHttpError from "http-errors";
 import OTP from "../Otp/OtpModel.js";
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema, resetPasswordSchema } from './validation.js';
 
+function jwtToken(user, expire = '30s') {
+    const userDTO = {
+        name: user.name,
+        title: user.title,
+        bio: user.bio,
+        post_count: user.post_count,
+        email: user.email,
+        slug: user.slug,
+        img: user.img,
+        follower_count: user.follower_count,
+        following_count: user.following_count,
+        task_done: user.task_done,
+        project_done: user.project_done,
+        img_bg: user.img_bg
+    };
+
+    const token = jwt.sign(userDTO, process.env.SECRET_KEY, { expiresIn: expire });
+
+    return { token, userDTO };
+}
 
 async function register(req, res, next) {
-   
     try {
-      
         await registerSchema.validate(req.body);
 
         const existingUser = await checkExistByField('email', req.body.email, 'users');
         if (existingUser) throw new createHttpError.Conflict('User Already Exists');
 
         const { name, email, password } = req.body;
-        const user = await User.create({ name, email, password });
+        const hash_password = await makeHashPassword(password);
+        const slug = await makeSlug(name, 'users');
+        console.log(slug);
 
-        res.status(201).json({ data: user, message: 'User Registered Successfully' });
- 
+        const user = await User.create({ name, slug, email, password: hash_password });
+
+        res.status(201).json({ data: user, message: 'User Registered Successfully', success: true });
     } catch (e) {
         next(e);
     }
-
 }
 
-
 async function login(req, res, next) {
-  
     try {
-      
         await loginSchema.validate(req.body);
 
         const { email, password } = req.body;
@@ -41,35 +58,19 @@ async function login(req, res, next) {
 
         if (!await verifyHashPassword(user.password, password)) throw new createHttpError.Forbidden("Invalid Password");
 
-        const token = jwt.sign({
-            name: user.name,
-            title: user.title,
-            bio: user.bio,
-            post_count: user.post_count,
-            email: user.email,
-            slug: user.slug,
-            img: user.img,
-            follower_count: user.follower_count,
-            following_count: user.following_count,
-            task_done: user.task_done,
-            project_done: user.project_done,
-            img_bg: user.img_bg
-        }, process.env.SECRET_KEY, { expiresIn: '1d' });
+        const jwtTokenResult = jwtToken(user);
+        const token = jwtTokenResult.token;
+        const userDTO = jwtTokenResult.userDTO;
+        const data = { token: newToken, user: userDTO };
 
-        return res.status(200).json({ message: 'Login successful', token: token });
- 
+        return res.status(200).json({ success: true, message: 'Login successful', data });
     } catch (e) {
-  
         next(e);
     }
-
 }
 
-
 async function sendOTP(req, res, next) {
-   
     try {
-    
         const { email } = req.body;
         const user = await checkExistByField('email', email, 'users');
         if (!user) throw new createHttpError.NotFound('404 - User not found');
@@ -89,18 +90,14 @@ async function sendOTP(req, res, next) {
 
         await sendMail(user.email, subject, text);
 
-        res.status(200).json({ message: 'OTP sent successfully' });
-   
+        res.status(200).json({ success: true, message: 'OTP sent successfully' });
     } catch (e) {
         next(e);
     }
 }
 
-
 async function checkOTP(req, res, next) {
-   
     try {
-
         const { otp } = req.body;
         const otpRecord = await OTP.findOne({ where: { code: otp } });
         if (!otpRecord) throw new createHttpError.NotFound('OTP not found');
@@ -113,19 +110,14 @@ async function checkOTP(req, res, next) {
 
         await user.save();
 
-        res.status(200).json({ message: 'User is now active' });
-  
+        res.status(200).json({ success: true, message: 'User is now active' });
     } catch (e) {
-
         next(e);
     }
 }
 
-
 async function resetPassword(req, res, next) {
-
     try {
-
         await resetPasswordSchema.validate(req.body);
 
         const { email } = req.body;
@@ -153,19 +145,14 @@ async function resetPassword(req, res, next) {
 
         await sendMail(user.email, subject, text);
 
-        res.status(200).json({ message: 'Password reset token sent successfully. Please check your email.' });
-   
+        res.status(200).json({ success: true, message: 'Password reset token sent successfully. Please check your email.' });
     } catch (e) {
-
         next(e);
     }
 }
 
-
 async function confirmResetPassword(req, res, next) {
-
     try {
-
         const { email, token, newPassword } = req.body;
 
         const resetRecord = await ResetPassword.findOne({ where: { email, token } });
@@ -185,14 +172,70 @@ async function confirmResetPassword(req, res, next) {
 
         await sendMail(user.email, subject, text);
 
-        res.status(200).json({ message: 'Password reset successfully. You can now log in with your new password.' });
-   
+        res.status(200).json({ success: true, message: 'Password reset successfully. You can now log in with your new password.' });
     } catch (e) {
-    
         next(e);
     }
 }
 
+function verify_token(req, res, next) {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.decode(token);
+
+        jwt.verify(token, process.env.SECRET_KEY, (err, verified) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    const expiredAt = new Date(err.expiredAt).getTime();
+                    const now = new Date().getTime();
+                    const refreshPeriod = 20 * 24 * 60 * 60 * 1000; // 20 days in milliseconds
+
+                    if (now - expiredAt > refreshPeriod) {
+                        return next(createHttpError.Forbidden('Token Expired'));
+                    }
+
+                    const refreshed_jwt = jwtToken(decoded, '10s');
+                    const newToken = refreshed_jwt.token;
+                    const userDTO = refreshed_jwt.userDTO;
+                    console.log('New token:', newToken);
+                    const data = { token: newToken, user: userDTO };
+
+                    return res.status(200).json({
+                        message: 'Token Has Refreshed',
+                        data,
+                        success: true
+                    });
+
+                } else {
+                    return next(createHttpError.Unauthorized('Invalid Token'));
+                }
+            }
+
+            const userDTO = {
+                name: verified.name,
+                title: verified.title,
+                bio: verified.bio,
+                post_count: verified.post_count,
+                email: verified.email,
+                slug: verified.slug,
+                img: verified.img,
+                follower_count: verified.follower_count,
+                following_count: verified.following_count,
+                task_done: verified.task_done,
+                project_done: verified.project_done,
+                img_bg: verified.img_bg
+            };
+
+            res.status(200).json({
+                message: 'Token is valid',
+                user: userDTO,
+                success: true
+            });
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 
 export {
     register,
@@ -201,4 +244,5 @@ export {
     sendOTP,
     resetPassword,
     confirmResetPassword,
+    verify_token
 };

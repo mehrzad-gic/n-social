@@ -11,7 +11,7 @@ function Routes(app) {
     });
 
     // Authentication routes
-    app.use('/auth',auth, authRoutes);
+    app.use('/auth', authRoutes);
 
     // Start the server
     const PORT = process.env.PORT || 5000;
