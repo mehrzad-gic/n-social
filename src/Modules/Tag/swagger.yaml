@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Social Media API
+  description: API documentation for the Social Media project
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+tags:
+  - name: tags
+    description: Tag related endpoints
+
+paths:
+  /tags:
+    get:
+      tags:
+        - tags
+      summary: Get all tags
+      responses:
+        '200':
+          description: All tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+
+    post:
+      tags:
+        - tags
+      summary: Create a new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '201':
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Tag'
+
+  /tags/{id}:
+    get:
+      tags:
+        - tags
+      summary: Get a tag by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Tag'
+
+    put:
+      tags:
+        - tags
+      summary: Update a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagUpdate'
+      responses:
+        '200':
+          description: Tag updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Tag'
+
+    delete:
+      tags:
+        - tags
+      summary: Delete a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Tag'
+
+  /tags/{id}/change-status:
+    patch:
+      tags:
+        - tags
+      summary: Change the status of a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tag status changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Tag'
+
+components:
+  schemas:
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        status:
+          type: integer
+
+    TagCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: integer
+
+    TagUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: integer
