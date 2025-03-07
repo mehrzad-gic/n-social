@@ -57,13 +57,13 @@ paths:
                   data:
                     $ref: '#/components/schemas/Tag'
 
-  /tags/{id}:
+  /tags/{slug}:
     get:
       tags:
         - tags
-      summary: Get a tag by ID
+      summary: Get a tag by slug
       parameters:
-        - name: id
+        - name: slug
           in: path
           required: true
           schema:
@@ -88,7 +88,7 @@ paths:
         - tags
       summary: Update a tag
       parameters:
-        - name: id
+        - name: slug
           in: path
           required: true
           schema:
@@ -119,7 +119,7 @@ paths:
         - tags
       summary: Delete a tag
       parameters:
-        - name: id
+        - name: slug
           in: path
           required: true
           schema:
@@ -139,13 +139,13 @@ paths:
                   data:
                     $ref: '#/components/schemas/Tag'
 
-  /tags/{id}/change-status:
+  /tags/{slug}/change-status:
     patch:
       tags:
         - tags
       summary: Change the status of a tag
       parameters:
-        - name: id
+        - name: slug
           in: path
           required: true
           schema:

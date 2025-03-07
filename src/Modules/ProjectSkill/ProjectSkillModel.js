@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Project from '../Project/ProjectModel.js'; // Adjust the path as necessary
-import Skill from '../Skill/SkillModel.js'; // Adjust the path as necessary
 
 const ProjectSkill = sequelize.define('ProjectSkill', {
     id: {
@@ -16,7 +14,7 @@ const ProjectSkill = sequelize.define('ProjectSkill', {
     skill_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Skill,
+            model: 'skills',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -25,7 +23,7 @@ const ProjectSkill = sequelize.define('ProjectSkill', {
     project_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Project,
+            model: 'projects',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -36,8 +34,5 @@ const ProjectSkill = sequelize.define('ProjectSkill', {
     tableName: 'project_skills'
 });
 
-// Setting up the many-to-many relationship
-Project.belongsToMany(Skill, { through: ProjectSkill, foreignKey: 'project_id' });
-Skill.belongsToMany(Project, { through: ProjectSkill, foreignKey: 'skill_id' });
 
 export default ProjectSkill;

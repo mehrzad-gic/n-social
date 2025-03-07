@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const Save = sequelize.define('Save', {
     id: {
@@ -11,7 +10,7 @@ const Save = sequelize.define('Save', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -33,6 +32,5 @@ const Save = sequelize.define('Save', {
     timestamps: true
 });
 
-Save.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Save;

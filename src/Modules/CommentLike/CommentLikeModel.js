@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Comment from '../Comment/CommentModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const CommentLike = sequelize.define('CommentLike', {
     id: {
@@ -12,7 +10,7 @@ const CommentLike = sequelize.define('CommentLike', {
     comment_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Comment,
+            model: 'comments',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const CommentLike = sequelize.define('CommentLike', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -36,8 +34,5 @@ const CommentLike = sequelize.define('CommentLike', {
     tableName: 'comment_like'
 });
 
-// Setting up the many-to-many relationship
-Comment.belongsToMany(User, { through: CommentLike, foreignKey: 'comment_id' });
-User.belongsToMany(Comment, { through: CommentLike, foreignKey: 'user_id' });
 
 export default CommentLike;

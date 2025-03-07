@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import FaqCategory from '../FaqCategory/FaqCategoryModel.js'; // Adjust the path as necessary
 
 const Faq = sequelize.define('Faq', {
     id: {
@@ -19,7 +18,7 @@ const Faq = sequelize.define('Faq', {
     category_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: FaqCategory,
+            model: 'faq_categories',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -33,6 +32,5 @@ const Faq = sequelize.define('Faq', {
     timestamps: true
 });
 
-Faq.belongsTo(FaqCategory, { foreignKey: 'category_id' });
 
 export default Faq;

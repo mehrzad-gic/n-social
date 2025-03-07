@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Tag from '../Tag/TagModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const TagUserActivity = sequelize.define('TagUserActivity', {
     id: {
@@ -20,7 +18,7 @@ const TagUserActivity = sequelize.define('TagUserActivity', {
     tag_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Tag,
+            model: 'tags',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -29,7 +27,7 @@ const TagUserActivity = sequelize.define('TagUserActivity', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -40,8 +38,5 @@ const TagUserActivity = sequelize.define('TagUserActivity', {
     tableName: 'tag_user_activity'
 });
 
-// Setting up the many-to-many relationship
-Tag.belongsToMany(User, { through: TagUserActivity, foreignKey: 'tag_id' });
-User.belongsToMany(Tag, { through: TagUserActivity, foreignKey: 'user_id' });
 
 export default TagUserActivity;

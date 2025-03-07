@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const Story = sequelize.define('Story', {
     id: {
@@ -23,7 +22,7 @@ const Story = sequelize.define('Story', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -33,6 +32,5 @@ const Story = sequelize.define('Story', {
     timestamps: true
 });
 
-Story.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Story;

@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Group from '../Group/GroupModel.js'; // Adjust the path as necessary
 
 const GroupMember = sequelize.define('GroupMember', {
     id: {
@@ -16,7 +14,7 @@ const GroupMember = sequelize.define('GroupMember', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -25,7 +23,7 @@ const GroupMember = sequelize.define('GroupMember', {
     group_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Group,
+            model: 'groups',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -35,7 +33,5 @@ const GroupMember = sequelize.define('GroupMember', {
     timestamps: true
 });
 
-GroupMember.belongsTo(User, { foreignKey: 'user_id' });
-GroupMember.belongsTo(Group, { foreignKey: 'group_id' });
 
 export default GroupMember;

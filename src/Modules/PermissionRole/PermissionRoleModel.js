@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Permission from '../Permission/PermissionModel.js'; // Adjust the path as necessary
-import Role from '../Role/RoleModel.js'; // Adjust the path as necessary
 
 const PermissionRole = sequelize.define('PermissionRole', {
     id: {
@@ -12,7 +10,7 @@ const PermissionRole = sequelize.define('PermissionRole', {
     permission_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Permission,
+            model: 'permissions',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const PermissionRole = sequelize.define('PermissionRole', {
     role_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Role,
+            model: 'roles',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -36,8 +34,5 @@ const PermissionRole = sequelize.define('PermissionRole', {
     tableName: 'permission_role'
 });
 
-// Setting up the many-to-many relationship
-Permission.belongsToMany(Role, { through: PermissionRole, foreignKey: 'permission_id' });
-Role.belongsToMany(Permission, { through: PermissionRole, foreignKey: 'role_id' });
 
 export default PermissionRole;

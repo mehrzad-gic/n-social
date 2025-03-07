@@ -1,9 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Company from '../Company/CompanyModel.js'; // Adjust the path as necessary
-import Salary from '../Salary/SalaryModel.js'; // Adjust the path as necessary
-import Category from '../Category/CategoryModel.js'; // Adjust the path as necessary
 
 const Project = sequelize.define('Project', {
     id: {
@@ -51,7 +47,7 @@ const Project = sequelize.define('Project', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -61,7 +57,7 @@ const Project = sequelize.define('Project', {
     company_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Company,
+            model: 'companies',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -70,7 +66,7 @@ const Project = sequelize.define('Project', {
     salary_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Salary,
+            model: 'salaries',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -79,7 +75,7 @@ const Project = sequelize.define('Project', {
     category_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Category,
+            model: 'categories',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -89,9 +85,5 @@ const Project = sequelize.define('Project', {
     timestamps: true
 });
 
-Project.belongsTo(User, { foreignKey: 'user_id' });
-Project.belongsTo(Company, { foreignKey: 'company_id' });
-Project.belongsTo(Salary, { foreignKey: 'salary_id' });
-Project.belongsTo(Category, { foreignKey: 'category_id' });
 
 export default Project;

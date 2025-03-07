@@ -7,6 +7,7 @@ import OTP from "../Otp/OtpModel.js";
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema, resetPasswordSchema } from './validation.js';
 
+
 function jwtToken(user, expire = '30s') {
     const userDTO = {
         name: user.name,
@@ -61,7 +62,7 @@ async function login(req, res, next) {
         const jwtTokenResult = jwtToken(user);
         const token = jwtTokenResult.token;
         const userDTO = jwtTokenResult.userDTO;
-        const data = { token: newToken, user: userDTO };
+        const data = { token: token, user: userDTO };
 
         return res.status(200).json({ success: true, message: 'Login successful', data });
     } catch (e) {
@@ -225,17 +226,22 @@ function verify_token(req, res, next) {
                 project_done: verified.project_done,
                 img_bg: verified.img_bg
             };
-
+ 
             res.status(200).json({
                 message: 'Token is valid',
-                user: userDTO,
+                data: { user: userDTO },
                 success: true
             });
+
         });
+
     } catch (error) {
+
         next(error);
     }
+
 }
+
 
 export {
     register,

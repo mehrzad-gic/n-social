@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Reject from '../Reject/RejectModel.js'; // Adjust the path as necessary
 
 const JobOfferReport = sequelize.define('JobOfferReport', {
     id: {
@@ -16,7 +14,7 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
     by_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -25,7 +23,7 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -34,7 +32,7 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
     reject_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Reject,
+            model: 'rejects',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -44,8 +42,5 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
     timestamps: true
 });
 
-JobOfferReport.belongsTo(User, { foreignKey: 'by_id', as: 'by' });
-JobOfferReport.belongsTo(User, { foreignKey: 'user_id' });
-JobOfferReport.belongsTo(Reject, { foreignKey: 'reject_id' });
 
 export default JobOfferReport;

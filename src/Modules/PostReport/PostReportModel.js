@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Post from '../Post/PostModel.js'; // Adjust the path as necessary
-import Report from '../Report/ReportModel.js'; // Adjust the path as necessary
 
 const PostReport = sequelize.define('PostReport', {
     id: {
@@ -12,7 +10,7 @@ const PostReport = sequelize.define('PostReport', {
     post_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Post,
+            model: 'posts',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const PostReport = sequelize.define('PostReport', {
     report_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Report,
+            model: 'reports',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -32,8 +30,5 @@ const PostReport = sequelize.define('PostReport', {
     tableName: 'pots_report'
 });
 
-// Setting up the many-to-many relationship
-Post.belongsToMany(Report, { through: PostReport, foreignKey: 'post_id' });
-Report.belongsToMany(Post, { through: PostReport, foreignKey: 'report_id' });
 
 export default PostReport;

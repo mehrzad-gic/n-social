@@ -49,7 +49,7 @@ const Post = sequelize.define('Post', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -59,7 +59,7 @@ const Post = sequelize.define('Post', {
         type: DataTypes.BIGINT,
         allowNull: true,
         references: {
-            model: Group,
+            model: 'groups',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -69,7 +69,6 @@ const Post = sequelize.define('Post', {
     timestamps: true
 });
 
-Post.belongsTo(User, { foreignKey: 'user_id' });
-Post.belongsTo(Group, { foreignKey: 'group_id' });
+
 
 export default Post;

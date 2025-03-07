@@ -1,6 +1,7 @@
 import express from 'express';
 import authRoutes from '../Modules/Auth/Routes.js';
 import auth from '../Middlewares/Auth.js';
+import tagRoutes from '../Modules/Tag/Routes.js';
 
 function Routes(app) {
     
@@ -12,6 +13,8 @@ function Routes(app) {
 
     // Authentication routes
     app.use('/auth', authRoutes);
+
+    app.use(tagRoutes);
 
     // Start the server
     const PORT = process.env.PORT || 5000;

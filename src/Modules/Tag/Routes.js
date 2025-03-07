@@ -1,14 +1,12 @@
 import express from 'express';
-import { index, create, show, update, destroy, change_status } from './Tag.Controller.js';
-import { validate } from '../../Middlewares/ValidationMiddleware.js';
-import { tagCreateSchema, tagUpdateSchema } from './TagValidation.js';
+import { index, create, show, update, destroy, changeStatus } from './Tag.Controller.js';
 const router = express.Router();
 
 router.get('/tags', index);
-router.post('/tags', validate(tagCreateSchema), create);
-router.get('/tags/:id', show);
-router.put('/tags/:id', validate(tagUpdateSchema), update);
+router.post('/tags', create);
+router.get('/tags/:slug', show);
+router.put('/tags/:slug', update);
 router.delete('/tags/:id', destroy);
-router.patch('/tags/:id/change-status', change_status);
+router.patch('/tags/:slug/change-status', changeStatus);
 
 export default router;

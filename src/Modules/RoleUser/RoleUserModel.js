@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Role from '../Role/RoleModel.js'; // Adjust the path as necessary
 
 const RoleUser = sequelize.define('RoleUser', {
     id: {
@@ -12,7 +10,7 @@ const RoleUser = sequelize.define('RoleUser', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const RoleUser = sequelize.define('RoleUser', {
     role_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Role,
+            model: 'roles',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -36,8 +34,5 @@ const RoleUser = sequelize.define('RoleUser', {
     tableName: 'role_user'
 });
 
-// Setting up the many-to-many relationship
-User.belongsToMany(Role, { through: RoleUser, foreignKey: 'user_id' });
-Role.belongsToMany(User, { through: RoleUser, foreignKey: 'role_id' });
 
 export default RoleUser;

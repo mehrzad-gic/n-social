@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Plan from '../Plan/PlanModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const PlanUser = sequelize.define('PlanUser', {
     id: {
@@ -30,7 +28,7 @@ const PlanUser = sequelize.define('PlanUser', {
     plan_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Plan,
+            model: 'plans',
             key: 'id'
         },
         onDelete: 'CASCADE'
@@ -38,7 +36,7 @@ const PlanUser = sequelize.define('PlanUser', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE'
@@ -57,8 +55,5 @@ const PlanUser = sequelize.define('PlanUser', {
     tableName: 'plan_users'
 });
 
-// Setting up the many-to-many relationship
-Plan.belongsToMany(User, { through: PlanUser, foreignKey: 'plan_id' });
-User.belongsToMany(Plan, { through: PlanUser, foreignKey: 'user_id' });
 
 export default PlanUser;

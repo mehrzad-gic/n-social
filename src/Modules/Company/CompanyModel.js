@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; 
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const Company = sequelize.define('Company', {
     id: {
@@ -55,7 +54,7 @@ const Company = sequelize.define('Company', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',

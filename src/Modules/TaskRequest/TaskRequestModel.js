@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const TaskRequest = sequelize.define('TaskRequest', {
     id: {
@@ -11,7 +10,7 @@ const TaskRequest = sequelize.define('TaskRequest', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -41,6 +40,5 @@ const TaskRequest = sequelize.define('TaskRequest', {
     timestamps: true
 });
 
-TaskRequest.belongsTo(User, { foreignKey: 'user_id' });
 
 export default TaskRequest;

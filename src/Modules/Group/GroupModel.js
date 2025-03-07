@@ -44,7 +44,7 @@ const Group = sequelize.define('Group', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users', // Use the table name instead of the model reference
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -58,6 +58,5 @@ const Group = sequelize.define('Group', {
     timestamps: true
 });
 
-Group.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Group;

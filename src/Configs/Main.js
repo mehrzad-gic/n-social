@@ -7,6 +7,7 @@ import Routes from './Routes.js';
 const app = express();
 import dotenv from 'dotenv';
 dotenv.config(); // Load environment variables
+import Associations from './Associations.js';
 
 export default async function Main() {
 
@@ -18,6 +19,8 @@ export default async function Main() {
 
     swaggerConfig(app);
 
+    Associations();
+    
     Errors(app);
 
     process.on('SIGINT', async () => {

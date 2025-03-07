@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Company from '../Company/CompanyModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const CompanyMember = sequelize.define('CompanyMember', {
     id: {
@@ -12,7 +10,7 @@ const CompanyMember = sequelize.define('CompanyMember', {
     company_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Company,
+            model: 'companies',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const CompanyMember = sequelize.define('CompanyMember', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -51,7 +49,5 @@ const CompanyMember = sequelize.define('CompanyMember', {
     timestamps: true
 });
 
-CompanyMember.belongsTo(Company, { foreignKey: 'company_id' });
-CompanyMember.belongsTo(User, { foreignKey: 'user_id' });
 
 export default CompanyMember;

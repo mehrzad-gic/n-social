@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
+import Post from '../Post/PostModel.js';
+import LikePost from '../LikePost/LikePostModel.js';
 
 const User = sequelize.define('User', {
     id: {
@@ -92,5 +94,6 @@ const User = sequelize.define('User', {
 }, {
     timestamps: true
 });
+
 
 export default User;

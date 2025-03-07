@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Tag from '../Tag/TagModel.js'; // Adjust the path as necessary
 
 const UserActivity = sequelize.define('UserActivity', {
     id: {
@@ -11,7 +10,7 @@ const UserActivity = sequelize.define('UserActivity', {
     tag_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Tag,
+            model: 'tags',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -25,6 +24,5 @@ const UserActivity = sequelize.define('UserActivity', {
     timestamps: true
 });
 
-UserActivity.belongsTo(Tag, { foreignKey: 'tag_id' });
 
 export default UserActivity;

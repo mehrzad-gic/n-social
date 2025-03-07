@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import ProjectCategory from '../ProjectCategory/ProjectCategoryModel.js'; // Adjust the path as necessary
 
 const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
     id: {
@@ -19,7 +18,7 @@ const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
     project_category_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: ProjectCategory,
+            model: 'project_categories',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -29,6 +28,5 @@ const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
     timestamps: true
 });
 
-ProjectCategoryPrice.belongsTo(ProjectCategory, { foreignKey: 'project_category_id' });
 
 export default ProjectCategoryPrice;

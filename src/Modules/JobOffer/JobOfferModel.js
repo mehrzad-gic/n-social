@@ -1,8 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Company from '../Company/CompanyModel.js'; // Adjust the path as necessary
-import Category from '../Category/CategoryModel.js'; // Adjust the path as necessary
-import Salary from '../Salary/SalaryModel.js'; // Adjust the path as necessary
 
 const JobOffer = sequelize.define('JobOffer', {
     id: {
@@ -21,7 +18,7 @@ const JobOffer = sequelize.define('JobOffer', {
     company_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Company,
+            model: 'companies',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -30,7 +27,7 @@ const JobOffer = sequelize.define('JobOffer', {
     category_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Category,
+            model: 'categories',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -39,7 +36,7 @@ const JobOffer = sequelize.define('JobOffer', {
     salary_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Salary,
+            model: 'salaries',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -65,9 +62,5 @@ const JobOffer = sequelize.define('JobOffer', {
 }, {
     timestamps: true
 });
-
-JobOffer.belongsTo(Company, { foreignKey: 'company_id' });
-JobOffer.belongsTo(Category, { foreignKey: 'category_id' });
-JobOffer.belongsTo(Salary, { foreignKey: 'salary_id' });
 
 export default JobOffer;

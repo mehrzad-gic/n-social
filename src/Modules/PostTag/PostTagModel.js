@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Post from '../Post/PostModel.js'; // Adjust the path as necessary
-import Tag from '../Tag/TagModel.js'; // Adjust the path as necessary
 
 const PostTag = sequelize.define('PostTag', {
     id: {
@@ -12,7 +10,7 @@ const PostTag = sequelize.define('PostTag', {
     post_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Post,
+            model: 'posts',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -21,7 +19,7 @@ const PostTag = sequelize.define('PostTag', {
     tag_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Tag,
+            model: 'tags',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -32,8 +30,5 @@ const PostTag = sequelize.define('PostTag', {
     tableName: 'post_tag'
 });
 
-// Setting up the many-to-many relationship
-Post.belongsToMany(Tag, { through: PostTag, foreignKey: 'post_id' });
-Tag.belongsToMany(Post, { through: PostTag, foreignKey: 'tag_id' });
 
 export default PostTag;

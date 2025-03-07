@@ -1,8 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Group from '../Group/GroupModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Reject from '../Reject/RejectModel.js'; // Adjust the path as necessary
 
 const GroupRequest = sequelize.define('GroupRequest', {
     id: {
@@ -17,7 +14,7 @@ const GroupRequest = sequelize.define('GroupRequest', {
     group_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Group,
+            model: 'groups',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -26,7 +23,7 @@ const GroupRequest = sequelize.define('GroupRequest', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -36,7 +33,7 @@ const GroupRequest = sequelize.define('GroupRequest', {
         type: DataTypes.BIGINT,
         allowNull: true,
         references: {
-            model: Reject,
+            model: 'rejects',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -45,9 +42,5 @@ const GroupRequest = sequelize.define('GroupRequest', {
 }, {
     timestamps: true
 });
-
-GroupRequest.belongsTo(Group, { foreignKey: 'group_id' });
-GroupRequest.belongsTo(User, { foreignKey: 'user_id' });
-GroupRequest.belongsTo(Reject, { foreignKey: 'reject_id' });
 
 export default GroupRequest;

@@ -1,8 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import Project from '../Project/ProjectModel.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
-import Reject from '../Reject/RejectModel.js'; // Adjust the path as necessary
 
 const ProjectRequest = sequelize.define('ProjectRequest', {
     id: {
@@ -33,7 +30,7 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
     project_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: Project,
+            model: 'projects',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -42,7 +39,7 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: User,
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -52,7 +49,7 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
         type: DataTypes.BIGINT,
         allowNull: true,
         references: {
-            model: Reject,
+            model: 'rejects',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -62,8 +59,5 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
     timestamps: true
 });
 
-ProjectRequest.belongsTo(Project, { foreignKey: 'project_id' });
-ProjectRequest.belongsTo(User, { foreignKey: 'user_id' });
-ProjectRequest.belongsTo(Reject, { foreignKey: 'reject_id' });
 
 export default ProjectRequest;
