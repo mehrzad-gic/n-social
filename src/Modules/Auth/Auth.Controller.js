@@ -9,7 +9,9 @@ import { registerSchema, loginSchema, resetPasswordSchema } from './validation.j
 
 
 function jwtToken(user, expire = '30s') {
+
     const userDTO = {
+        id:user.id,
         name: user.name,
         title: user.title,
         bio: user.bio,
@@ -64,7 +66,7 @@ async function login(req, res, next) {
         const userDTO = jwtTokenResult.userDTO;
         const data = { token: token, user: userDTO };
 
-        return res.status(200).json({ success: true, message: 'Login successful', data });
+        return res.status(200).json({ success: true, message: 'Login successful', data : data });
     } catch (e) {
         next(e);
     }
@@ -180,13 +182,17 @@ async function confirmResetPassword(req, res, next) {
 }
 
 function verify_token(req, res, next) {
+
     try {
+        
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.decode(token);
 
         jwt.verify(token, process.env.SECRET_KEY, (err, verified) => {
+            
             if (err) {
                 if (err.name === 'TokenExpiredError') {
+
                     const expiredAt = new Date(err.expiredAt).getTime();
                     const now = new Date().getTime();
                     const refreshPeriod = 20 * 24 * 60 * 60 * 1000; // 20 days in milliseconds
@@ -213,6 +219,7 @@ function verify_token(req, res, next) {
             }
 
             const userDTO = {
+                id: verified.id,
                 name: verified.name,
                 title: verified.title,
                 bio: verified.bio,
@@ -250,5 +257,6 @@ export {
     sendOTP,
     resetPassword,
     confirmResetPassword,
-    verify_token
+    verify_token,
+    jwtToken
 };

@@ -1,11 +1,13 @@
 import express from "express";
 import PostController from "./Post.Controller.js";
-
 const router = express.Router();
+import { upload } from '../../Middlewares/uploadMiddleware.js';
 
-router.get("/posts", PostController.index);
-router.get("/posts/:slug/show", PostController.show);
-router.post("/posts/create", PostController.store);
-router.put("/posts/:slug/update", PostController.update);
-router.patch('/posts/:slug/change-status', PostController.change_status);
-router.delete("posts/:slug/delete", PostController.destroy);
+router.get("", PostController.index);
+router.get("/:slug/show", PostController.show);
+router.post("/create", PostController.store);
+router.put("/:slug/update", PostController.update);
+router.patch('/:slug/change-status', PostController.change_status);
+router.delete("/:slug/delete", PostController.destroy);
+
+export default router;

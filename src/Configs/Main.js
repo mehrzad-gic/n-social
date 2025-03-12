@@ -23,6 +23,7 @@ export default async function Main() {
     
     Errors(app);
 
+    
     process.on('SIGINT', async () => {
         await sequelize.close();
         console.log('Database connection closed.');

@@ -49,6 +49,5 @@ const Page = sequelize.define('Page', {
     timestamps: true
 });
 
-Page.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Page;

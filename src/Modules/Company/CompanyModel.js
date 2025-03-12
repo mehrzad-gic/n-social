@@ -64,6 +64,5 @@ const Company = sequelize.define('Company', {
     timestamps: true
 });
 
-Company.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Company;

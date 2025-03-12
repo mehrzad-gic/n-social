@@ -3,69 +3,93 @@ import User from "../User/UserModel.js";
 import Group from "../Group/GroupModel.js";
 import LikePost from "../LikePost/LikePostModel.js"; // Import LikePost model
 import Save from "../Save/SaveModel.js"; // Import Save model
-import { Sequelize } from "sequelize"; // Import Sequelize
+import createHttpError from "http-errors";
 
+
+
+
+// Fetch all posts with related user and group data
+// Also include liked/saved status for the current user if available in the session object
+// 1. Fetch the current user from the session object (req.session.user) and check if it exists or not
+// 2. Fetch posts with related user and group data, and liked/saved status
+// 3. Send the posts data in the response
+// 4. Handle errors if any and pass them to the error handling middleware
+// 5. Add pagination to the posts data
+// 6. Get the page number from the query parameters and calculate the offset
+// 7. Fetch posts with related user and group data, and liked/saved status with pagination and send the response
+// 8. Handle errors if any and pass them to the error handling middleware 
 async function index(req, res, next) {
 
     try {
-    
-        const user = req.user; // Assuming the user is attached to the request object
 
+        // 1. Fetch the current user from the session object
+        const currentUser = req.session.user;
+
+        if (!currentUser) {
+            return next(createHttpError.Unauthorized('User not authenticated'));
+        }
+
+        // 2. Get pagination parameters from the query
         const page = req.query.page ? parseInt(req.query.page) : 1;
-        const limit = 3;
+        const limit = 3; // Number of posts per page
         const offset = (page - 1) * limit;
 
-        // Fetch posts with related user and group data, and liked/saved status
+        // 3. Fetch posts with related user and group data
         const posts = await Post.findAll({
-            where: { status: 1 },
+            where: { status: 1 }, // Only fetch active posts
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'slug', 'title', 'name', 'email', 'img']
+                    attributes: ['slug', 'title', 'name', 'email', 'img']
                 },
                 {
                     model: Group,
-                    attributes: ['id', 'name', 'img', 'slug']
+                    attributes: ['name', 'img', 'slug']
                 }
             ],
-            attributes: {
-                include: [
-                    [
-                        Sequelize.literal(`(
-                            SELECT COUNT(*)
-                            FROM like_post AS like
-                            WHERE
-                                like.post_id = Post.id
-                                AND like.user_id = ${user.id}
-                        )`),
-                        'isLiked'
-                    ],
-                    [
-                        Sequelize.literal(`(
-                            SELECT COUNT(*)
-                            FROM save AS save
-                            WHERE
-                                save.saveable_id = Post.id
-                                AND save.user_id = ${user.id}
-                        )`),
-                        'isSaved'
-                    ]
-                ]
-            },
-            order: [['createdAt', 'DESC']],
+            order: [['createdAt', 'DESC']], // Sort by creation date (newest first)
             limit,
             offset
         });
 
+        // 4. Fetch liked and saved post IDs for the current user
+        const likedPosts = await LikePost.findAll({
+            where: {
+                user_id: currentUser.id,
+                status: 1
+            },
+            attributes: ['post_id']
+        });
+
+        const savedPosts = await Save.findAll({
+            where: {
+                user_id: currentUser.id,
+                saveable_type : 'Post',
+                status: 1
+            },
+            attributes: ['saveable_id']
+        });
+
+        // 5. Send the response with posts, pagination, and user data
         res.json({
-            posts,
-            success: true
+            posts: posts,
+            token: req.session.token,
+            user: req.session.user,
+            likedPosts: likedPosts.map(like => like.post_id),
+            savedPosts: savedPosts.map(save => save.saveable_id),
+            pagination: {
+                page,
+                limit,
+            },
+            success: true,
         });
 
     } catch (error) {
+        // 6. Handle errors and pass them to the error-handling middleware
         next(error);
     }
 }
+
 
 // find by slug
 async function show(req, res, next) {
@@ -81,14 +105,23 @@ async function show(req, res, next) {
     }
 }
 
+
 async function store(req, res, next) {
+  
     try {
-        const post = await Post.create(req.body);
-        res.json(post);
+
+        const {name,tags,text} = req.body;
+    
+        
+        
+        res.send(req.body);
+    
     } catch (error) {
+    
         next(error);
     }
 }
+
 
 async function update(req, res, next) {
     try {
@@ -103,6 +136,7 @@ async function update(req, res, next) {
     }
 }
 
+
 async function destroy(req, res, next) {
     try {
         const post = await Post.destroy({
@@ -115,6 +149,7 @@ async function destroy(req, res, next) {
         next(error);
     }
 }
+
 
 async function change_status(req, res, next) {
     try {
@@ -131,6 +166,29 @@ async function change_status(req, res, next) {
         next(error);
     }
 }
+
+
+async function like(req,res,next) {
+    
+}
+
+
+async function comments(params) {
+    
+
+}
+
+
+async function save(params) {
+    
+}
+
+
+
+async function addComment(params) {
+    
+}
+
 
 export default {
     index,

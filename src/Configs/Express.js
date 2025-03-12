@@ -4,39 +4,42 @@ import session from 'express-session';
 import morgan from 'morgan';
 import fileUpload from 'express-fileupload';
 import cors from 'cors';
+import multer from 'multer';
+
 
 // Express Configuration
-function Express(app){
+function Express(app) {
 
-    app.use(cors({
-      origin: 'http://localhost:3000', // Allow only your React app's origin
-      methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-      credentials: true, // Allow cookies and credentials
-    }));
+  const corsOptions = {
+    origin: 'http://localhost:3000', // Allow only your React app's origin
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  };
+  
+  app.use(cors(corsOptions));
+  
+  // morgan
+  if (process.env.NODE_ENV === 'development') {
+    app.use(morgan("dev"));
+  }
 
-    // morgan
-    if (process.env.NODE_ENV === 'development') {
-      app.use(morgan("dev"));
-    }
-
-    // bodyParser
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json());
+  // bodyParser
+  app.use(bodyParser.json({limit: '50mb'}));
+  app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 
-    // cookieParser
-    app.use(cookieParser());
+  // cookieParser
+  app.use(cookieParser());
 
-    // session
-    app.use(session({
-      saveUninitialized: true,
-      resave: false,
-      secret: 'secret',
-      cookie: { maxAge: 600000 }
-    }));
+  // session
+  app.use(session({
+    saveUninitialized: true,
+    resave: false,
+    secret: 'secret',
+    cookie: { maxAge: 600000 }
+  }));
 
-    // express-fileUpload Middleware
-    app.use(fileUpload());
+  // express-fileUpload Middleware
+  // app.use(fileUpload());
 
 }
 
