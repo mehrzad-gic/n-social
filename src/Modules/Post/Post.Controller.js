@@ -12,7 +12,6 @@ import Comment from "../Comment/CommentModel.js";
 import LikeComment from "../CommentLike/CommentLikeModel.js";
 
 
-
 // Fetch all posts with related user and group data
 // Also include liked/saved status for the current user if available in the session object
 // 1. Fetch the current user from the session object (req.session.user) and check if it exists or not
@@ -95,22 +94,36 @@ async function index(req, res, next) {
     }
 }
 
- 
-// find by slug
 async function show(req, res, next) {
     try {
+
+        const currentUser = req.session.user;
+
+        if (!currentUser) {
+            return next(createHttpError.Unauthorized('User not authenticated'));
+        }
         const post = await Post.findOne({
             where: {
                 slug: req.params.slug
             }
         });
-        res.json(post);
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }
+
+        res.json({
+            success:true,
+            post,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Post fetched successfully'
+        });
     } catch (error) {
         next(error);
     }
 }
  
-
 async function store(req, res, next) {
   
     try {
@@ -161,8 +174,6 @@ async function store(req, res, next) {
 
 }
 
-
-
 async function update(req, res, next) {
     try {
         const post = await Post.update(req.body, {
@@ -176,20 +187,23 @@ async function update(req, res, next) {
     }
 }
 
-
 async function destroy(req, res, next) {
     try {
-        const post = await Post.destroy({
+        await Post.destroy({
             where: {
                 slug: req.params.slug
             }
         });
-        res.json(post);
+        res.json({
+            success:true,
+            message:'Post deleted successfully',
+            token:req.session.token,
+            user:req.session.user,
+        });
     } catch (error) {
         next(error);
     }
 }
-
 
 async function change_status(req, res, next) {
     try {
@@ -201,42 +215,17 @@ async function change_status(req, res, next) {
         });
         post.status = post.status === 1 ? 0 : 1;
         await post.save();
-        res.json(post);
+        res.json({
+            success:true,
+            message:'Post status changed successfully',
+            token:req.session.token,
+            user:req.session.user,
+            post
+        });
     } catch (error) {
         next(error);
     }
 }
-
-
-async function like(req,res,next) {
-    
-    const {slug} = req.params;
-
-    try{
-
-        const post = await Post.findOne({
-            where:{slug:slug}
-        })
-
-        if(!post){
-            return next(createHttpError.NotFound('Post not found'));
-        }
-
-        const like = await LikePost.create({
-            post_id:post.id,
-            user_id:req.session.user.id,
-            status:1
-        })
-
-        res.json(like);
-
-    } catch(e){
-
-        next(e);
-    }
-
-}
-
 
 async function comments(params) {
     
@@ -269,49 +258,8 @@ async function comments(params) {
 }
 
 
-async function save(req,res,next) {
-    
-    try{
 
-        const post = await Post.findOne({
-            where:{slug:slug}
-        })
-
-        if(!post){
-            return next(createHttpError.NotFound('Post not found'));
-        }
-
-        let save = await Save.findOne({
-            where:{saveable_id:post.id,user_id:req.session.user.id}
-        })
-
-        if(save){
-            await save.destroy();
-        }else{
-            save = await Save.create({
-                saveable_id:post.id,
-                saveable_type:'Post',
-                user_id:req.session.user.id,
-                status:1
-            })
-        }
-
-        res.json({
-            success:true,
-            save,
-            token:req.session.token,
-            user:req.session.user,
-            message : 'Post saved successfully'
-        });
-
-    }catch(e){
-        next(e);
-    }
-
-}
-
-
-
+//! PostComment Actions --------------------------------------------
 async function addComment(req,res,next) {
     
     const {slug} = req.params;
@@ -350,7 +298,6 @@ async function addComment(req,res,next) {
     }
 
 }
-
 
 async function addReply(req,res,next) {
 
@@ -396,6 +343,167 @@ async function addReply(req,res,next) {
 }
 
 
+
+//! PostSave Actions --------------------------------------------
+async function save(req,res,next) {
+    
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }
+
+        let save = await Save.findOne({
+            where:{saveable_id:post.id,user_id:req.session.user.id}
+        })
+
+        if(save){
+            await save.destroy();
+        }else{
+            save = await Save.create({
+                saveable_id:post.id,
+                saveable_type:'Post',
+                user_id:req.session.user.id,
+                status:1
+            })
+        }
+
+        res.json({
+            success:true,
+            save,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Post saved successfully'
+        });
+
+    }catch(e){
+        next(e);
+    }
+
+}
+
+async function removeSave(req,res,next) {
+
+    const {slug} = req.params;
+
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post) return next(createHttpError.NotFound('Post not found'));
+
+        const save = await Save.findOne({
+            where:{saveable_type:'Post',saveable_id:post.id,user_id:req.session.user.id}
+        })
+
+        if(!save) return next(createHttpError.NotFound('Save not found'));
+
+        await save.destroy();
+
+        res.json({
+            success:true,
+            message:'Post removed from saved',
+            token:req.session.token,
+            user:req.session.user,
+        })
+
+    }catch(e){
+        next(e);
+    }
+
+}
+
+
+
+//! PostLike Actions --------------------------------------------
+async function like(req,res,next) {
+    
+    const {slug} = req.params;
+
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post) return next(createHttpError.NotFound('Post not found'));
+        
+        const isLiked = await LikePost.findOne({
+            where:{post_id:post.id,user_id:req.session.user.id}
+        })
+
+        if(isLiked) throw createHttpError.BadRequest('You already liked this post and this request will not be processed ');
+
+        await post.increment('likes');
+
+        const like = await LikePost.create({
+            post_id:post.id,
+            user_id:req.session.user.id,
+            status:1
+        })
+
+        res.json({
+            success:true,
+            like,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Post liked successfully'
+        });
+
+    } catch(e){
+
+        next(e);
+    }
+
+}
+
+async function unlike(req,res,next){
+
+    const {slug} = req.params;
+
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post) return next(createHttpError.NotFound('Post not found'));
+
+        const like = await LikePost.findOne({
+            where:{post_id:post.id,user_id:req.session.user.id}
+        })
+
+        if(!like) return next(createHttpError.NotFound('Like not found'));
+
+        await like.destroy();
+
+        await post.decrement('likes');
+
+        res.json({
+            success:true,
+            message:'Post unliked successfully',
+            token:req.session.token,
+            user:req.session.user,
+        });
+
+    }catch(e){
+        next(e);
+    }
+
+
+
+}
+
+
+
+
+//! Comment Actions --------------------------------------------
 async function likeComment(req,res,next) {
 
     const {comment_id} = req.params;
@@ -406,35 +514,28 @@ async function likeComment(req,res,next) {
             where:{id:comment_id}
         })
 
-        if(!comment){
-            return next(createHttpError.NotFound('Comment not found'));
-        }
-
-        let like = await LikeComment.findOne({
+        if(!comment) return next(createHttpError.NotFound('Comment not found'));
+        
+        const isLiked = await LikeComment.findOne({
             where:{comment_id:comment.id,user_id:req.session.user.id}
         })
 
-        const action = like.status === 1 ? 'liked' : 'unliked';
+        if(isLiked) throw createHttpError.BadRequest('You already liked this comment and this request will not be processed '); 
+        
+        await comment.increment('likes');
 
-        if(like){
-            like.status = like.status === 1 ? 0 : 1;
-            await like.save();
-        }else{
-
-            like = await LikeComment.create({
-                comment_id:comment.id,
-                user_id:req.session.user.id,
-                status:1
-            })
-
-        }   
+        const like = await LikeComment.create({
+            comment_id:comment.id,
+            user_id:req.session.user.id,
+            status:1
+        })
 
         res.json({
             success:true,
             like,
             token:req.session.token,
             user:req.session.user,
-            message : `Comment ${action} successfully`
+            message : 'Comment liked successfully'
         });
 
     }catch(e){
@@ -442,6 +543,42 @@ async function likeComment(req,res,next) {
     }
 
 }
+
+async function unlikeComment(req,res,next){
+
+    const {comment_id} = req.params;
+
+    try{
+
+        const comment = await Comment.findOne({
+            where:{id:comment_id}
+        })
+
+        if(!comment) return next(createHttpError.NotFound('Comment not found'));
+
+        const like = await LikeComment.findOne({
+            where:{comment_id:comment.id,user_id:req.session.user.id}
+        })
+
+        if(!like) return next(createHttpError.NotFound('Like not found'));
+
+        await like.destroy();
+
+        await comment.decrement('likes');
+
+        res.json({
+            success:true,
+            message:'Comment unliked successfully',
+            token:req.session.token,
+            user:req.session.user,
+        })
+        
+    }catch(e){
+        next(e);
+    }
+}
+
+
 
 export default {
     index,
@@ -455,5 +592,8 @@ export default {
     save,
     addComment,
     addReply,
-    likeComment
+    likeComment,
+    unlikeComment,
+    removeSave,
+    unlike
 };
