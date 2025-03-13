@@ -4,9 +4,10 @@ import Group from "../Group/GroupModel.js";
 import LikePost from "../LikePost/LikePostModel.js"; // Import LikePost model
 import Save from "../Save/SaveModel.js"; // Import Save model
 import createHttpError from "http-errors";
-
-
-
+import { uploadImages, deleteImage } from '../../Helpers/Upload.js'; // Adjust the path as necessary
+import {makeSlug} from '../../Helpers/Helper.js'; 
+import PostTag from "../PostTag/PostTagModel.js";
+import UploadQueue from "../../Queues/UpoladQueue.js";
 
 // Fetch all posts with related user and group data
 // Also include liked/saved status for the current user if available in the session object
@@ -90,7 +91,7 @@ async function index(req, res, next) {
     }
 }
 
-
+ 
 // find by slug
 async function show(req, res, next) {
     try {
@@ -104,23 +105,57 @@ async function show(req, res, next) {
         next(error);
     }
 }
-
+ 
 
 async function store(req, res, next) {
   
     try {
 
-        const {name,tags,text} = req.body;
+        // req.body
+        const {name,text,tags} = req.body;
     
+        // slug
+        const slug = await makeSlug(name);
+
+        // create post
+        const post = await Post.create({
+            name,
+            text,
+            slug,
+            user_id : req.session.user.id
+        });
+
+        // sync tags to post_tags pivot table
+        if (tags && Array.isArray(tags)) {
+            const tagPromises = tags.map(tagId => {
+                return PostTag.create({
+                    post_id: post.id,
+                    tag_id: tagId
+                });
+            });
+            await Promise.all(tagPromises);
+        }
+                
+        // Queue the file upload job
+        await UploadQueue.add({
+            files: req.files,
+            postId: post.id // Pass the post ID to associate with the upload
+        });
+
+        // response
+        res.json({
+            success:true,
+            message:'Post Created Successfully and file be upload very soon',
+            post
+        });
         
-        
-        res.send(req.body);
-    
     } catch (error) {
-    
-        next(error);
+        console.error('Error uploading files:', error);
+        res.status(500).json({ error: 'Failed to upload files' });
     }
+
 }
+
 
 
 async function update(req, res, next) {
