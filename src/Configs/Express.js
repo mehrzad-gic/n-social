@@ -12,7 +12,7 @@ function Express(app) {
 
   const corsOptions = {
     origin: 'http://localhost:3000', // Allow only your React app's origin
-    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+    // optionsSuccessStatus: 200 // Some legacy browsers choke on 204
   };
   
   app.use(cors(corsOptions));

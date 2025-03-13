@@ -8,6 +8,10 @@ import { uploadImages, deleteImage } from '../../Helpers/Upload.js'; // Adjust t
 import {makeSlug} from '../../Helpers/Helper.js'; 
 import PostTag from "../PostTag/PostTagModel.js";
 import UploadQueue from "../../Queues/UpoladQueue.js";
+import Comment from "../Comment/CommentModel.js";
+import LikeComment from "../CommentLike/CommentLikeModel.js";
+
+
 
 // Fetch all posts with related user and group data
 // Also include liked/saved status for the current user if available in the session object
@@ -115,14 +119,15 @@ async function store(req, res, next) {
         const {name,text,tags} = req.body;
     
         // slug
-        const slug = await makeSlug(name);
+        const slug = await makeSlug(name,'posts');
 
         // create post
         const post = await Post.create({
             name,
             text,
             slug,
-            user_id : req.session.user.id
+            user_id : req.session.user.id,
+            comment_status : 1
         });
 
         // sync tags to post_tags pivot table
@@ -205,25 +210,238 @@ async function change_status(req, res, next) {
 
 async function like(req,res,next) {
     
+    const {slug} = req.params;
+
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }
+
+        const like = await LikePost.create({
+            post_id:post.id,
+            user_id:req.session.user.id,
+            status:1
+        })
+
+        res.json(like);
+
+    } catch(e){
+
+        next(e);
+    }
+
 }
 
 
 async function comments(params) {
     
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }   
+
+        const comments = await Comment.findAll({
+            where:{post_id:post.id}
+        })
+
+        res.json({
+            success:true,
+            comments,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Comments fetched successfully'
+        });
+
+    }catch(e){
+        next(e);
+    }
 
 }
 
 
-async function save(params) {
+async function save(req,res,next) {
     
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }
+
+        let save = await Save.findOne({
+            where:{saveable_id:post.id,user_id:req.session.user.id}
+        })
+
+        if(save){
+            await save.destroy();
+        }else{
+            save = await Save.create({
+                saveable_id:post.id,
+                saveable_type:'Post',
+                user_id:req.session.user.id,
+                status:1
+            })
+        }
+
+        res.json({
+            success:true,
+            save,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Post saved successfully'
+        });
+
+    }catch(e){
+        next(e);
+    }
+
 }
 
 
 
-async function addComment(params) {
+async function addComment(req,res,next) {
     
+    const {slug} = req.params;
+
+    try{
+
+        const post = await Post.findOne({
+            where:{slug:slug}
+        })
+
+        if(!post){
+            return next(createHttpError.NotFound('Post not found'));
+        }
+
+        const comment = await Comment.create({
+            post_id:post.id,
+            user_id:req.session.user.id,
+            comment:req.body.comment,
+            status:1,
+            commentable_id:post.id,
+            commentable_type:'Post',
+            deep:0,
+            parent_id:0
+        })
+
+        res.json({
+            success:true,
+            comment,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Comment added successfully'
+        });
+
+    }catch(e){
+        next(e);
+    }
+
 }
 
+
+async function addReply(req,res,next) {
+
+    const {comment_id} = req.params;
+ 
+    try{
+
+        const comment = await Comment.findOne({
+            where:{id:comment_id}
+        })
+
+        if(!comment){
+            return next(createHttpError.NotFound('Comment not found'));
+        }
+
+        if(comment.deep >= 2){
+            return next(createHttpError.BadRequest('You cannot reply to a reply'));
+        }
+
+        const reply = await Comment.create({
+            post_id:comment.post_id,
+            user_id:req.session.user.id,
+            comment:req.body.comment,
+            status:1,
+            commentable_id:comment.id,
+            commentable_type:'Comment',
+            deep:comment.deep + 1,
+            parent_id:comment.id
+        });
+
+        res.json({
+            success:true,
+            reply,
+            token:req.session.token,
+            user:req.session.user,
+            message : 'Reply added successfully'
+        });
+
+    }catch(e){
+        next(e);
+    }
+
+}
+
+
+async function likeComment(req,res,next) {
+
+    const {comment_id} = req.params;
+    
+    try{
+
+        const comment = await Comment.findOne({
+            where:{id:comment_id}
+        })
+
+        if(!comment){
+            return next(createHttpError.NotFound('Comment not found'));
+        }
+
+        let like = await LikeComment.findOne({
+            where:{comment_id:comment.id,user_id:req.session.user.id}
+        })
+
+        const action = like.status === 1 ? 'liked' : 'unliked';
+
+        if(like){
+            like.status = like.status === 1 ? 0 : 1;
+            await like.save();
+        }else{
+
+            like = await LikeComment.create({
+                comment_id:comment.id,
+                user_id:req.session.user.id,
+                status:1
+            })
+
+        }   
+
+        res.json({
+            success:true,
+            like,
+            token:req.session.token,
+            user:req.session.user,
+            message : `Comment ${action} successfully`
+        });
+
+    }catch(e){
+        next(e);
+    }
+
+}
 
 export default {
     index,
@@ -231,5 +449,11 @@ export default {
     store,
     update,
     destroy,
-    change_status
+    change_status,
+    like,
+    comments,
+    save,
+    addComment,
+    addReply,
+    likeComment
 };

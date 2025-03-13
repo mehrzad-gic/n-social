@@ -1,10 +1,11 @@
-// fileHelper.js
 import { Readable } from 'stream';
 import { v2 as cloudinary } from 'cloudinary';
 
+
+// Upload function to handle single or multiple files
 // Upload function to handle single or multiple files
 export async function uploadImages(files) {
-
+    
     if (!files || (Array.isArray(files) && files.length === 0)) {
         throw new Error('No image files provided');
     }
@@ -12,11 +13,33 @@ export async function uploadImages(files) {
     const fileArray = Array.isArray(files) ? files : [files];
     const uploadPromises = fileArray.map(file => {
         return new Promise((resolve, reject) => {
-            const stream = Readable.from(file.buffer);
+            // Log the entire file object for inspection
+            console.log('File object:', file);
+            console.log('File buffer:', file.buffer);
+            console.log('Buffer type:', typeof file.buffer);
+
+            // Check if file.buffer is a Buffer
+            let buffer;
+            if (Buffer.isBuffer(file.buffer)) {
+                buffer = file.buffer;
+            } else if (file.buffer && file.buffer.data) {
+                // If file.buffer is an object, extract the data
+                buffer = Buffer.from(file.buffer.data);
+            } else {
+                console.error('Invalid buffer type:', file.buffer);
+                return reject(new Error('Invalid buffer type'));
+            }
+
+            // Create a readable stream from the buffer
+            const stream = new Readable();
+            stream.push(buffer); // Push the buffer data to the stream
+            stream.push(null); // Signal that the stream has ended
+
             const uploadStream = cloudinary.uploader.upload_stream(
                 { folder: 'uploads' }, // Optional: Folder in Cloudinary
                 (error, result) => {
                     if (error) {
+                        console.error('Upload error:', error);
                         reject(error);
                     } else {
                         resolve(result);
