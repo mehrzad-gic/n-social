@@ -1,0 +1,229 @@
+paths:
+  /companies:
+    get:
+      tags:
+        - Companies
+      summary: Get all companies
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  companies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Company'
+    post:
+      tags:
+        - Companies
+      summary: Create a new company
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                des:
+                  type: string
+                revenue:
+                  type: number
+                type:
+                  type: string
+                sector:
+                  type: number
+                size:
+                  type: number
+                img:
+                  type: string
+                  format: binary
+                img_bg:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  company:
+                    $ref: '#/components/schemas/Company'
+
+  /companies/{id}:
+    get:
+      tags:
+        - Companies
+      summary: Get company by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  company:
+                    $ref: '#/components/schemas/Company'
+    put:
+      tags:
+        - Companies
+      summary: Update company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                des:
+                  type: string
+                revenue:
+                  type: number
+                type:
+                  type: string
+                sector:
+                  type: number
+                size:
+                  type: number
+                img:
+                  type: string
+                  format: binary
+                img_bg:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  company:
+                    $ref: '#/components/schemas/Company'
+    delete:
+      tags:
+        - Companies
+      summary: Delete company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /companies/{id}/status:
+    put:
+      tags:
+        - Companies
+      summary: Change company status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: number
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+components:
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        des:
+          type: string
+        img:
+          type: string
+        img_bg:
+          type: string
+        revenue:
+          type: number
+        type:
+          type: string
+        sector:
+          type: number
+        size:
+          type: number
+        status:
+          type: number
+        user_id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

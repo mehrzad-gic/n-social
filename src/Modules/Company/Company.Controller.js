@@ -88,7 +88,6 @@ async function create(req, res, next) {
             message: "Company created successfully",
             company
         });
-
     } catch (error) {
 
         next(error);

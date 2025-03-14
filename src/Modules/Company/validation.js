@@ -1,25 +1,26 @@
 import * as yup from "yup";
 
-export const createCompanySchema = yup.object().shape({
-    name: yup.string().required(),
-    des: yup.string().required(),
-    img: yup.mixed().required(),
-    img_bg: yup.mixed().required(),
-    revenue: yup.number().required(),
-    type: yup.string().required(),
-    sector: yup.number().required(),
-    size: yup.number().required(),
+const createCompanySchema = yup.object({
+    name: yup.string().required("Name is required"),
+    des: yup.string().required("Description is required"),
+    revenue: yup.number().required("Revenue is required"),
+    type: yup.string().required("Type is required"),
+    sector: yup.number().required("Sector is required"),
+    size: yup.number().required("Size is required"),
 });
 
-export const updateCompanySchema = yup.object().shape({
-    name: yup.string().required(),
-    des: yup.string().required(),
-    img: yup.mixed(),
-    img_bg: yup.mixed(),
-    revenue: yup.number().required(),
-    type: yup.string().required(),
-    sector: yup.number().required(),
-    size: yup.number().required(),
+const updateCompanySchema = yup.object({
+    name: yup.string().required("Name is required"),
+    des: yup.string().required("Description is required"),
+    revenue: yup.number().required("Revenue is required"),
+    type: yup.string().required("Type is required"),
+    sector: yup.number().required("Sector is required"),
+    size: yup.number().required("Size is required"),
 });
+
+export {
+    createCompanySchema,
+    updateCompanySchema
+}
 
 
