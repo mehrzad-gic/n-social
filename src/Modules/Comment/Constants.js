@@ -1,3 +1,11 @@
-const ALLOWED_MODELS = ["posts","comments","users","products","categories","brands","orders","coupons","faqs","pages","settings","sliders","tags","users","videos"];
+const ALLOWED_MODELS = [
+    "posts",
+    "groups",
+    "offers",
+    "projects",
+    "project_requests"
+]
 
-export {ALLOWED_MODELS};
+export {
+    ALLOWED_MODELS
+}

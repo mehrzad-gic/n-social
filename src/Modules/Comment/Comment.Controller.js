@@ -7,7 +7,7 @@ import pool from "../../Configs/Mysql2.js";
 import {createCommentSchema} from "./validation.js";
 import {ALLOWED_MODELS} from "../Constants.js";
 import Report from "../Report/ReportModel.js";
-
+import deleteChildQueue from "../../Queues/DeleteChildQueue.js";
 
 
 async function index(req, res, next) {
@@ -157,6 +157,11 @@ async function delete_comment(req, res, next) {
         if (!comment) throw new createHttpError.NotFound("Comment not found");
 
         await comment.destroy();
+
+        await deleteChildQueue.add({
+            model: comment.commentable_type,
+            id: comment.commentable_id
+        },{delay:1000});
 
         res.json({
             success: true,
