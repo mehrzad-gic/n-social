@@ -3,8 +3,11 @@ import Comment from "./CommentModel.js";
 import CommentLike from "../CommentLike/CommentLikeModel.js";
 import CommentReport from "../CommentReport/CommentReportModel.js";
 import User from "../User/UserModel.js";
-import Post from "../Post/PostModel.js";
 import pool from "../../Configs/Mysql2.js";
+import {createCommentSchema} from "./validation.js";
+import {ALLOWED_MODELS} from "../Constants.js";
+import Report from "../Report/ReportModel.js";
+
 
 
 async function index(req, res, next) {
@@ -166,6 +169,7 @@ async function delete_comment(req, res, next) {
 
 }
 
+
 async function likeComment(req, res, next) {
 
     const { comment_id } = req.params;
@@ -205,6 +209,7 @@ async function likeComment(req, res, next) {
     }
 
 }
+
 
 async function unlikeComment(req, res, next) {
 
@@ -247,6 +252,7 @@ async function create(req,res,next) {
 
     try{
 
+
         // validate model
         if(!ALLOWED_MODELS.includes(model)) return next(createHttpError.BadRequest('Invalid model'));
         
@@ -282,17 +288,26 @@ async function create(req,res,next) {
 
 }
 
+
 async function reportComment(req,res,next){
 
     try {
         
         const {comment_id} = req.params;
 
+        // check comment
         const comment = await Comment.findByPk(comment_id);
-
         if(!comment) return next(createHttpError.NotFound('Comment not found'));
+
+        // check if user has already reported this comment
+        const isReported = await CommentReport.findOne({where:{comment_id:comment.id,user_id:req.session.user.id}})
+        if(isReported) return next(createHttpError.BadRequest('You have already reported this comment'));
         
-        const report = await CommentReport.create({
+        // check report
+        const checkReport = await Report.findByPk(req.body.report_id);
+        if(!checkReport) return next(createHttpError.NotFound('Report not found'));
+
+        const commentReport = await CommentReport.create({
             comment_id:comment.id,
             user_id:req.session.user.id,
             reason:req.body.reason,
@@ -301,7 +316,7 @@ async function reportComment(req,res,next){
 
         res.json({
             success:true,
-            report,
+            commentReport,
             message:'Comment reported successfully'
         })
         
@@ -311,4 +326,8 @@ async function reportComment(req,res,next){
     
 }
 
-export { index, show, change_status, add_reply,create,delete_comment,likeComment,unlikeComment }
+
+
+export { 
+    index, show, change_status, add_reply,create,delete_comment,likeComment,unlikeComment,reportComment 
+}
