@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
-import User from '../User/UserModel.js'; // Adjust the path as necessary
 
 const Group = sequelize.define('Group', {
     id: {
@@ -21,11 +20,11 @@ const Group = sequelize.define('Group', {
         allowNull: false
     },
     member: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false
     },
     post: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false
     },
     status: {

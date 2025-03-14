@@ -227,7 +227,9 @@ async function change_status(req, res, next) {
     }
 }
 
-async function comments(params) {
+async function comments(req,res,next) {
+
+    const {slug} = req.params;
     
     try{
 
@@ -242,6 +244,7 @@ async function comments(params) {
         const comments = await Comment.findAll({
             where:{post_id:post.id}
         })
+
 
         res.json({
             success:true,
