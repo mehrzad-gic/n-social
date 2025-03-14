@@ -155,7 +155,7 @@ async function store(req, res, next) {
         }
                 
         // Queue the file upload job
-        await UploadQueue.add({
+        await UploadQueue.add('post-upload', {
             files: req.files,
             postId: post.id // Pass the post ID to associate with the upload
         });

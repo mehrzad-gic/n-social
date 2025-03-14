@@ -1,14 +1,15 @@
 import Queue from 'bull';
 import redisClient from '../Configs/Redis.js';
-import UploadJob from '../Jobs/UploadJob.js';
-import Post from '../Modules/Post/PostModel.js';
 import createHttpError from 'http-errors';
+import UploadJob,{deleteFile, uploadCompany} from '../Jobs/UploadJob.js';
 
 
 const UploadQueue = new Queue('upload',redisClient);
 
-// Process the queue with the upload job
-UploadQueue.process(UploadJob);
+// Process the queue with named processors
+UploadQueue.process('post-upload', UploadJob);
+UploadQueue.process('company-upload', uploadCompany);
+UploadQueue.process('deleteFile', deleteFile);
 
 UploadQueue.on('completed', async (job, result) => {
     try {
