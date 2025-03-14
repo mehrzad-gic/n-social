@@ -19,11 +19,11 @@ const Group = sequelize.define('Group', {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    member: {
+    members: {
         type: DataTypes.BIGINT,
         allowNull: false
     },
-    post: {
+    posts: {
         type: DataTypes.BIGINT,
         allowNull: false
     },
@@ -43,7 +43,7 @@ const Group = sequelize.define('Group', {
     user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'users', // Use the table name instead of the model reference
+            model: 'users', 
             key: 'id'
         },
         onDelete: 'CASCADE',

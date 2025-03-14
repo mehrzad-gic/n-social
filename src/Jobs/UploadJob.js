@@ -106,3 +106,23 @@ export async function deleteFile(job){
         throw new Error('File upload failed: ' + error.message);
     }
 }
+
+
+export async function uploadFile(job){
+
+    const { file,table,img_field,data } = job.data;
+
+    try {
+
+        const result = await uploadImages(file);
+
+        await pool.query(`UPDATE ?? SET ?? = ? WHERE ?? = ?`,[table,img_field,JSON.stringify(result),id,data.id]);
+
+        console.log(`File uploaded successfully for ${table} ID: ${data.id}`);
+
+    } catch (error) {
+        console.error('Error in job processing:', error);
+        throw new Error('File upload failed: ' + error.message);
+    }
+
+}
