@@ -23,7 +23,8 @@ const CompanyReport = sequelize.define('CompanyReport', {
             key: 'id'
         },
         onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
+        onUpdate: 'CASCADE',
+        allowNull: true
     },
     report_id: {
         type: DataTypes.BIGINT,

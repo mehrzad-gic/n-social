@@ -2,6 +2,10 @@ import Company from "./CompanyModel.js";
 import { createCompanySchema, updateCompanySchema } from "./validation.js";
 import createHttpError from "http-errors";
 import UploadQueue from "../../Queues/UploadQueue.js";
+import CompanyReport from "../CompanyReport/CompanyReportModel.js";
+import Project from "../Project/ProjectModel.js";
+
+
 
 async function index(req, res, next) {
 
@@ -170,7 +174,7 @@ async function change_status(req, res, next) {
         const company = await Company.findByPk(req.params.id);
         if (!company) return next(createHttpError.NotFound("Company not found"));
 
-        await company.update({ status: req.body.status });
+        await company.update({ status: company.status === 1 ? 0 : 1 });
 
         res.status(200).json({
             success: true,
@@ -184,6 +188,39 @@ async function change_status(req, res, next) {
 }
 
 
+async function report(req,res,next){
+
+    try {
+
+        const company = await Company.findByPk(req.params.id);
+        if (!company) return next(createHttpError.NotFound("Company not found"));
+
+        const report = await CompanyReport.findByPk(req.body.report_id);
+        if(!report) return next(createHttpError.NotFound("Report not found"));
+
+        if(req.body.project_id){
+            const project = await Project.findByPk(req.body.project_id);
+            if(!project) return next(createHttpError.NotFound("Project not found"));
+        }
+
+        await CompanyReport.create({
+            company_id: company.id,
+            user_id: req.session.user.id,
+            project_id: req.body.project_id,
+            report_id: req.body.report_id
+        });
+        
+        res.status(200).json({
+            success: true,
+            message: "Company reported successfully",
+        });
+
+    } catch (error) {
+        next(error);
+    }
+
+}
+
 
 export {
     index,
@@ -191,7 +228,8 @@ export {
     create,
     update,
     destroy,
-    change_status
+    change_status,
+    report
 }
 
 
