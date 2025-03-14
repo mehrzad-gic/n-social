@@ -7,6 +7,7 @@ const createCompanySchema = yup.object({
     type: yup.string().required("Type is required"),
     sector: yup.number().required("Sector is required"),
     size: yup.number().required("Size is required"),
+    status: yup.number().oneOf([0,1]).required("Status is required"),
 });
 
 const updateCompanySchema = yup.object({
@@ -16,6 +17,7 @@ const updateCompanySchema = yup.object({
     type: yup.string().required("Type is required"),
     sector: yup.number().required("Sector is required"),
     size: yup.number().required("Size is required"),
+    status: yup.number().oneOf([0,1]).required("Status is required"),
 });
 
 export {
