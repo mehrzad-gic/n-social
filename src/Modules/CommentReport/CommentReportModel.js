@@ -36,7 +36,7 @@ const CommentReport = sequelize.define('CommentReport', {
     },
     status: {
         type: DataTypes.TINYINT,
-        defaultValue: 1
+        defaultValue: 0
     }
 }, {
     timestamps: true,
