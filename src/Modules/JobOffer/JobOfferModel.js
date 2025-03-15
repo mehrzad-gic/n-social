@@ -34,7 +34,7 @@ const JobOffer = sequelize.define('JobOffer', {
         onUpdate: 'CASCADE'
     },
     salary_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.BIGINT, 
         references: {
             model: 'salaries',
             key: 'id'
