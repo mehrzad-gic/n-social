@@ -11,10 +11,6 @@ const GroupRequest = sequelize.define('GroupRequest', {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    reject_reason: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     group_id: {
         type: DataTypes.BIGINT,
         references: {
@@ -28,7 +24,7 @@ const GroupRequest = sequelize.define('GroupRequest', {
         type: DataTypes.TINYINT,
         defaultValue: 0
     },
-    rejected_by: {
+    answer_by_id: {
         type: DataTypes.BIGINT,
         allowNull: true,
         references: {

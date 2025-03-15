@@ -6,6 +6,8 @@ import User from '../User/UserModel.js';
 import groupRequestValidation from './validation.js';
 import Reject from '../Reject/RejectModel.js';
 
+
+
 async function index(req,res,next){
 
     try {
@@ -22,6 +24,11 @@ async function index(req,res,next){
                     as:'user',
                     attributes:['id','name','email','slug','img']
                 },
+                {
+                    model:Reject,
+                    as:'reject',
+                    attributes:['id','reason']
+                }
             ]
         })
 
@@ -95,36 +102,34 @@ async function create(req,res,next){
 }
 
 
-async function reject(req,res,next){
+async function answer(req,res,next){
 
     try {
-        
+     
         const {id} = req.params;
+        const {status,reject_id} = req.body;
 
         const groupRequest = await GroupRequest.findByPk(id);
-        
         if(!groupRequest) return next(createHttpError.NotFound('Group request not found'));
-
-        const {error} = groupRequestValidation.validate(req.body);
-
-        if(error) return next(createHttpError.BadRequest(error.message));
-
-        const {reject_reason,reject_id} = req.body;
         
-        const reject = await Reject.findByPk(reject_id);
-
-        if(!reject) return next(createHttpError.NotFound('Reject not found'));
-
-        const updatedGroupRequest = await groupRequest.update({
-            reject_reason,reject_id,status:1,reject_by:req.session.user.id
-        })
+        if(status === 'reject'){
+            await groupRequest.update({
+                answer_by_id:req.session.user.id,
+                status:2,
+                reject_id:reject_id
+            });
+        } else if(status === 'resolve'){
+            await groupRequest.update({
+                answer_by_id:req.session.user.id,
+                status:1
+            });
+        }
 
         res.status(200).json({
             success:true,
-            message:'Group request rejected successfully',
-            data:updatedGroupRequest
+            message:'Group request answered successfully',
         })
-
+        
     } catch (error) {
         next(error);
     }
@@ -132,5 +137,5 @@ async function reject(req,res,next){
 }
 
 
-export {index,show,create,reject};
+export {index,show,create,answer};
 
