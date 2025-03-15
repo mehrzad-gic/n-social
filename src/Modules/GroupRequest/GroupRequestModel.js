@@ -7,7 +7,11 @@ const GroupRequest = sequelize.define('GroupRequest', {
         autoIncrement: true,
         primaryKey: true
     },
-    reject: {
+    message: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    reject_reason: {
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -16,6 +20,20 @@ const GroupRequest = sequelize.define('GroupRequest', {
         references: {
             model: 'groups',
             key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
+    status: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0
+    },
+    rejected_by: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'id'   
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
