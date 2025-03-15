@@ -8,6 +8,7 @@ router.put('/update/:id',update);
 router.delete('/destroy/:id',destroy);
 router.put('/change-status/:id',change_status);
 router.get('/show/:id',show);
+router.post('/report/:id',report);
 
 export default router;
 

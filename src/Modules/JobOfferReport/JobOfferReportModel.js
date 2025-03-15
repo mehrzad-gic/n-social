@@ -11,14 +11,12 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
         type: DataTypes.TINYINT,
         defaultValue: 1
     },
-    by_id: {
+    job_offer_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'users',
+            model: 'job_offers',
             key: 'id'
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
     },
     user_id: {
         type: DataTypes.BIGINT,
@@ -29,10 +27,10 @@ const JobOfferReport = sequelize.define('JobOfferReport', {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     },
-    reject_id: {
+    report_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'rejects',
+            model: 'reports',
             key: 'id'
         },
         onDelete: 'CASCADE',

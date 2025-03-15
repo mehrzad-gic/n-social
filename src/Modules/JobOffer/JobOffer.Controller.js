@@ -4,6 +4,10 @@ import createHttpError from 'http-errors';
 import Company from '../Company/CompanyModel.js';
 import Category from '../Category/CategoryModel.js';
 import Salary from '../Salary/SalaryModel.js';
+import Report from '../Report/ReportModel.js';
+import JobOfferReport from '../JobOfferReport/JobOfferReportModel.js';
+
+
 
 async function index(req,res,next){
 
@@ -217,5 +221,37 @@ async function show(req,res,next){
 
 }
 
-export {index,create,update,destroy,change_status,show};
+
+async function report(req,res,next){
+
+    try {
+        
+        const {id} = req.params;
+        const jobOffer = await JobOffer.findByPk(id);
+        if(!jobOffer) return next(createHttpError.NotFound('Job offer not found'));
+
+        const {report_id} = req.body;
+        const report = await Report.findByPk(report_id);
+        if(!report) return next(createHttpError.NotFound('Report not found'));
+
+        const jobOfferReport = await JobOfferReport.create({
+            job_offer_id:id,
+            report_id:report_id,
+            user_id:req.session.user.id
+        });
+
+        res.status(200).json({
+            success:true,
+            message:'Job offer reported successfully',
+            jobOfferReport
+        });
+
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+
+export {index,create,update,destroy,change_status,show,report};
 
