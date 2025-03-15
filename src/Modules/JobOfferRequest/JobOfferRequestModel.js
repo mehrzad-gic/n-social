@@ -15,13 +15,17 @@ const JobOfferRequest = sequelize.define('JobOfferRequest', {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    reject: {
+    reject_reason: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    resolve: {
+    resolve_message: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    status: {
+        type: DataTypes.ENUM('pending','accepted','rejected'),
+        defaultValue: 'pending'
     },
     job_offer_id: {
         type: DataTypes.BIGINT,
@@ -34,6 +38,16 @@ const JobOfferRequest = sequelize.define('JobOfferRequest', {
     },
     user_id: {
         type: DataTypes.BIGINT,
+        references: {
+            model: 'users',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
+    answer_by_id: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
         references: {
             model: 'users',
             key: 'id'

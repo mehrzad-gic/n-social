@@ -6,7 +6,7 @@ import Category from '../Category/CategoryModel.js';
 import Salary from '../Salary/SalaryModel.js';
 import Report from '../Report/ReportModel.js';
 import JobOfferReport from '../JobOfferReport/JobOfferReportModel.js';
-
+import makeSlug from '../../Helpers/Helper.js';
 
 
 async function index(req,res,next){
@@ -65,9 +65,12 @@ async function create(req,res,next){
         if(!category) return next(createHttpError.NotFound('Category not found'));
         if(!salary) return next(createHttpError.NotFound('Salary not found'));
         
+        const slug = await makeSlug(name,'job_offers');
+
         const jobOffer = await JobOffer.create({
             name,
             des,
+            slug,
             company_id,
             category_id,
             salary_id,

@@ -11,6 +11,10 @@ const JobOffer = sequelize.define('JobOffer', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     des: {
         type: DataTypes.TEXT,
         allowNull: false
