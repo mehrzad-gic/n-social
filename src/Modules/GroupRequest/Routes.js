@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { index,show,create,answer } from './GroupAdmin.Controller.js';
+import { index,show,create,answer } from './GroupRequest.Controller.js';
 const router = Router();
 
 
