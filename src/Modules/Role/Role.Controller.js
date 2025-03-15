@@ -1,6 +1,8 @@
 import { roleSchema } from './validation.js';
 import createHttpError from 'http-errors';
 import Role from './RoleModel.js';
+import PermissionRole from '../PermissionRole/PermissionRoleModel.js';
+import Permission from '../Permission/PermissionModel.js';
 
 
 // create role
@@ -134,4 +136,33 @@ async function changeStatus(req,res,next){
 
 }
 
-export {create,index,show,update,destroy,changeStatus};
+
+// get permissions by role id
+async function permissions(req,res,next){
+
+    try {
+        
+        const role = await Role.findByPk(req.params.id);
+        if(!role) return next(createHttpError.NotFound('Role not found'));
+
+        const permissions = await PermissionRole.findAll({
+            where: {role_id:role.id},
+            include: [{
+                model: Permission,
+                attributes: ['id', 'name','des']
+            }]
+        });
+
+        res.status(200).json({
+            success:true,
+            message:'Permissions fetched successfully',
+            permissions
+        })
+
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+export {create,index,show,update,destroy,changeStatus,permissions};
