@@ -77,7 +77,11 @@ async function create(req, res, next) {
             type: req.body.type,
             sector: req.body.sector,
             size: req.body.size,
-            user_id: req.session.user.id
+            user_id: req.session.user.id,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email,
+            website: req.body.website
         });
 
         // Queue the file upload job
@@ -117,7 +121,11 @@ async function update(req, res, next) {
             sector: req.body.sector,
             size: req.body.size,
             img: company.img,
-            img_bg: company.img_bg
+            img_bg: company.img_bg,
+            address: req.body.address,
+            phone: req.body.phone,
+            email: req.body.email,
+            website: req.body.website
         });
 
     

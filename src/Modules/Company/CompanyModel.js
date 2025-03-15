@@ -59,7 +59,23 @@ const Company = sequelize.define('Company', {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    }
+    },
+    address: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    phone: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    website: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },    
 }, {
     timestamps: true
 });
