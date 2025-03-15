@@ -8,6 +8,6 @@ router.get('/show/:id', EmailController.show);
 router.post('/create', EmailController.create);
 router.put('/update/:id', EmailController.update);
 router.delete('/delete/:id', EmailController.destroy);
-router.put('/status/:id', EmailController.change_status);
+router.put('/change-status/:id', EmailController.change_status);
 
 export default router;

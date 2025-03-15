@@ -8,7 +8,7 @@ router.get('/show/:id', CompanyController.show);
 router.post('/create', CompanyController.create);
 router.put('/update/:id', CompanyController.update);
 router.delete('/delete/:id', CompanyController.destroy);
-router.put('/status/:id', CompanyController.change_status);
+router.put('/change-status/:id', CompanyController.change_status);
 router.post('/report/:id', CompanyController.report);
 
 export default router;

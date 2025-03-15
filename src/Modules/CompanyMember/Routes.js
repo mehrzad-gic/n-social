@@ -7,6 +7,6 @@ router.get('/show/:id', show);
 router.post('/create', create);
 router.put('/update/:id', update);
 router.delete('/delete/:id', destroy);
-router.put('/status/:id', change_status);
+router.put('/change-status/:id', change_status);
 
 export default router;

@@ -11,6 +11,10 @@ const Plan = sequelize.define('Plan', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    des: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
     price: {
         type: DataTypes.INTEGER,
         allowNull: false

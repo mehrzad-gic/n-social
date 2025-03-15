@@ -8,7 +8,7 @@ router.post('/create',GroupController.create);
 router.put('/update/:id',GroupController.update);
 router.delete('/delete/:id',GroupController.destroy);
 router.get('/show/:id',GroupController.show);
-router.put('/status/:id',GroupController.change_status);
+router.put('/change-status/:id',GroupController.change_status);
 
 
 export default router;
