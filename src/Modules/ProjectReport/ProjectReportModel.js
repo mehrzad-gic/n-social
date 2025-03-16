@@ -29,10 +29,10 @@ const ProjectReport = sequelize.define('ProjectReport', {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     },
-    reject_id: {
+    report_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'rejects',
+            model: 'reports',
             key: 'id'
         },
         onDelete: 'CASCADE',
