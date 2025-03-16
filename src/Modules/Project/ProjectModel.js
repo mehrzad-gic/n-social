@@ -80,7 +80,19 @@ const Project = sequelize.define('Project', {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    }
+    },
+    tasks:{
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    tasks_completed:{
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    tasks_pending:{
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
 }, {
     timestamps: true
 });
