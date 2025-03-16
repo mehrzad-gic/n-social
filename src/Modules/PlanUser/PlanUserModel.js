@@ -41,11 +41,15 @@ const PlanUser = sequelize.define('PlanUser', {
         },
         onDelete: 'CASCADE'
     },
-    date_start: {
+    refresh_at:{
+        allowNull:true,
+        type : DataTypes.INTEGER
+    },
+    start: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    date_end: {
+    end: {
         type: DataTypes.INTEGER,
         allowNull: false,
         comment: 'if end date > now : fail'
