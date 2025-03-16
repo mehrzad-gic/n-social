@@ -15,10 +15,18 @@ const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
         type: DataTypes.TINYINT,
         defaultValue: 1
     },
-    project_category_id: {
+    min: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    max: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    category_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'project_categories',
+            model: 'categories',
             key: 'id'
         },
         onDelete: 'CASCADE',
