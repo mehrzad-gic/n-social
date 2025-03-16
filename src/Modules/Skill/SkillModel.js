@@ -7,6 +7,11 @@ const Skill = sequelize.define('Skill', {
         autoIncrement: true,
         primaryKey: true
     },
+    slug: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false
