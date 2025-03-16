@@ -7,7 +7,7 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
         autoIncrement: true,
         primaryKey: true
     },
-    salary: {
+    budget: {
         type: DataTypes.TINYINT,
         defaultValue: 0
     },
@@ -19,11 +19,11 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    reject: {
+    reject_message: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    resolve: {
+    resolve_message: {
         type: DataTypes.TEXT,
         allowNull: true
     },
@@ -44,6 +44,20 @@ const ProjectRequest = sequelize.define('ProjectRequest', {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    },
+    answer_by: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
+    answer_at: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     reject_id: {
         type: DataTypes.BIGINT,
