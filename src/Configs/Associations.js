@@ -20,7 +20,6 @@ import JobOffer from '../Modules/JobOffer/JobOfferModel.js'; // Adjust the path 
 import JobOfferReport from '../Modules/JobOfferReport/JobOfferReportModel.js'; // Adjust the path as necessary
 import JobOfferRequest from '../Modules/JobOfferRequest/JobOfferRequestModel.js'; // Adjust the path as necessary
 import Otp from '../Modules/Otp/OtpModel.js'; // Adjust the path as necessary
-import Page from '../Modules/Page/PageModel.js'; // Adjust the path as necessary
 import Permission from '../Modules/Permission/PermissionModel.js'; // Adjust the path as necessary
 import PermissionRole from '../Modules/PermissionRole/PermissionRoleModel.js'; // Adjust the path as necessary
 import Plan from '../Modules/Plan/PlanModel.js'; // Adjust the path as necessary
@@ -35,7 +34,6 @@ import ProjectReport from '../Modules/ProjectReport/ProjectReportModel.js'; // A
 import ProjectRequest from '../Modules/ProjectRequest/ProjectRequestModel.js'; // Adjust the path as necessary
 import ProjectSkill from '../Modules/ProjectSkill/ProjectSkillModel.js'; // Adjust the path as necessary
 import ProjectTask from '../Modules/ProjectTask/ProjectTaskModel.js'; // Adjust the path as necessary
-import Reaction from '../Modules/Reaction/ReactionModel.js'; // Adjust the path as necessary
 import Reject from '../Modules/Reject/RejectModel.js'; // Adjust the path as necessary
 import Report from '../Modules/Report/ReportModel.js'; // Adjust the path as necessary
 import ResetPassword from '../Modules/ResetPassword/ResetPasswordModel.js'; // Adjust the path as necessary
@@ -72,7 +70,6 @@ export default function Associations() {
     User.hasMany(JobOfferReport, { foreignKey: 'user_id' });
     User.hasMany(JobOfferRequest, { foreignKey: 'user_id' });
     User.hasMany(Otp, { foreignKey: 'user_id' });
-    User.hasMany(Page, { foreignKey: 'user_id' });
     User.hasMany(PermissionRole, { foreignKey: 'user_id' });
     User.hasMany(PlanUser, { foreignKey: 'user_id' });
     User.hasMany(PostReaction, { foreignKey: 'user_id' });
@@ -144,7 +141,6 @@ export default function Associations() {
     PlanUser.belongsTo(User, { foreignKey: 'user_id' });
 
     PostReaction.belongsTo(Post, { foreignKey: 'post_id' });
-    PostReaction.belongsTo(Reaction, { foreignKey: 'reaction_id' });
 
     PostTag.belongsTo(Post, { foreignKey: 'post_id' });
     PostTag.belongsTo(Tag, { foreignKey: 'tag_id' });

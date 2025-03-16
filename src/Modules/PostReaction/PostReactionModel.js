@@ -7,14 +7,23 @@ const PostReaction = sequelize.define('PostReaction', {
         autoIncrement: true,
         primaryKey: true
     },
-    reaction_id: {
+    user_id: {
         type: DataTypes.BIGINT,
         references: {
-            model: 'reactions',
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    },
+    status: {
+        type: DataTypes.TINYINT,
+        defaultValue: 1
+    },
+    type: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        comment: '1 => like, 2 => love, 3 => care, 4 => haha, 5 => wow, 6 => sad, 7 => angry, 8 => dislike' 
     },
     post_id: {
         type: DataTypes.BIGINT,
