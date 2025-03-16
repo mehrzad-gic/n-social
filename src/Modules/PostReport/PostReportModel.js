@@ -7,6 +7,19 @@ const PostReport = sequelize.define('PostReport', {
         autoIncrement: true,
         primaryKey: true
     },
+    status: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0
+    },
+    user_id: {
+        type: DataTypes.BIGINT,
+        references: {
+            model: 'users',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
     post_id: {
         type: DataTypes.BIGINT,
         references: {
