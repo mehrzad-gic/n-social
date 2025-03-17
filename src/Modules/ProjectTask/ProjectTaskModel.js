@@ -14,12 +14,22 @@ const ProjectTask = sequelize.define('ProjectTask', {
     },
     parent_id: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
     },
     project_id: {
         type: DataTypes.BIGINT,
         references: {
             model: 'projects',
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
+    manager_id: {
+        type: DataTypes.BIGINT,
+        references: {
+            model: 'users',
             key: 'id'
         },
         onDelete: 'CASCADE',
@@ -31,6 +41,7 @@ const ProjectTask = sequelize.define('ProjectTask', {
             model: 'users',
             key: 'id'
         },
+        allowNull: true,
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     },
@@ -44,23 +55,34 @@ const ProjectTask = sequelize.define('ProjectTask', {
     },
     reject: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true
     },
     resolve: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true
     },
     status: {
         type: DataTypes.TINYINT,
-        defaultValue: 0
+        defaultValue: 0,
+        comment: '0: pending, 1: done, 2: rejected'
     },
-    repeat: {
+    repeats_object: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'last repeats object to save data '
+    },
+    repeats: {
         type: DataTypes.TINYINT,
-        defaultValue: 0
+        defaultValue: 0,
+        comment: 'count of repeats'
     },
     time: {
         type: DataTypes.TINYINT,
         allowNull: false
+    },
+    done_at: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     timestamps: true
