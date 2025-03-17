@@ -161,7 +161,7 @@ export default function Associations() {
     TagUserActivity.belongsTo(Tag, { foreignKey: 'tag_id' });
     TagUserActivity.belongsTo(User, { foreignKey: 'user_id' });
     
-    TaskRequest.belongsTo(User, { foreignKey: 'user_id' });
     UserActivity.belongsTo(Tag, { foreignKey: 'tag_id' });
 
 }
+ 
