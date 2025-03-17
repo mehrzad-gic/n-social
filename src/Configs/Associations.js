@@ -27,8 +27,6 @@ import PlanUser from '../Modules/PlanUser/PlanUserModel.js'; // Adjust the path 
 import PostReaction from '../Modules/PostReaction/PostReactionModel.js'; // Adjust the path as necessary
 import PostTag from '../Modules/PostTag/PostTagModel.js'; // Adjust the path as necessary
 import Project from '../Modules/Project/ProjectModel.js'; // Adjust the path as necessary
-import ProjectCategory from '../Modules/ProjectCategory/ProjectCategoryModel.js'; // Adjust the path as necessary
-import ProjectCategoryPrice from '../Modules/ProjectCategoryPrice/ProjectCategoryPriceModel.js'; // Adjust the path as necessary
 import ProjectPro from '../Modules/ProjectPro/ProjectProModel.js'; // Adjust the path as necessary
 import ProjectReport from '../Modules/ProjectReport/ProjectReportModel.js'; // Adjust the path as necessary
 import ProjectRequest from '../Modules/ProjectRequest/ProjectRequestModel.js'; // Adjust the path as necessary
@@ -45,8 +43,6 @@ import Skill from '../Modules/Skill/SkillModel.js'; // Adjust the path as necess
 import Story from '../Modules/Story/StoryModel.js'; // Adjust the path as necessary
 import Tag from '../Modules/Tag/TagModel.js'; // Adjust the path as necessary
 import TagUserActivity from '../Modules/TagUserActivity/TagUserActivityModel.js'; // Adjust the path as necessary
-import TaskComment from '../Modules/TaskComment/TaskCommentModel.js'; // Adjust the path as necessary
-import TaskRequest from '../Modules/TaskRequest/TaskRequestModel.js'; // Adjust the path as necessary
 import UserActivity from '../Modules/UserActivity/UserActivityModel.js'; // Adjust the path as necessary
 
 
@@ -86,8 +82,6 @@ export default function Associations() {
     User.hasMany(Skill, { foreignKey: 'user_id' });
     User.hasMany(Story, { foreignKey: 'user_id' });
     User.hasMany(TagUserActivity, { foreignKey: 'user_id' });
-    User.hasMany(TaskComment, { foreignKey: 'user_id' });
-    User.hasMany(TaskRequest, { foreignKey: 'user_id' });
     User.hasMany(UserActivity, { foreignKey: 'user_id' });
 
     // Group associations
@@ -145,7 +139,6 @@ export default function Associations() {
     PostTag.belongsTo(Post, { foreignKey: 'post_id' });
     PostTag.belongsTo(Tag, { foreignKey: 'tag_id' });
 
-    ProjectCategoryPrice.belongsTo(ProjectCategory, { foreignKey: 'project_category_id' });
 
     ProjectReport.belongsTo(Project, { foreignKey: 'project_id' });
     ProjectReport.belongsTo(User, { foreignKey: 'user_id' });

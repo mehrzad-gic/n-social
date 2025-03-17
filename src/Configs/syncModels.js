@@ -4,10 +4,8 @@ import User from '../Modules/User/UserModel.js';
 import Otp from '../Modules/Otp/OtpModel.js';
 import Salary from '../Modules/Salary/SalaryModel.js';
 import Reject from '../Modules/Reject/RejectModel.js';
-import ProjectCategory from '../Modules/ProjectCategory/ProjectCategoryModel.js';
-import ProjectCategoryPrice from '../Modules/ProjectCategoryPrice/ProjectCategoryPriceModel.js';
-import Reaction from '../Modules/Reaction/ReactionModel.js';
 import Category from '../Modules/Category/CategoryModel.js';
+import CategoryPrice from '../Modules/CategoryPrice/CategoryPriceModel.js';
 import Tag from '../Modules/Tag/TagModel.js';
 import Group from '../Modules/Group/GroupModel.js';
 import Report from '../Modules/Report/ReportModel.js';
@@ -33,8 +31,6 @@ import ProjectTask from '../Modules/ProjectTask/ProjectTaskModel.js';
 import ProjectReport from '../Modules/ProjectReport/ProjectReportModel.js';
 import CompanyReport from '../Modules/CompanyReport/CompanyReportModel.js';
 import CompanyMember from '../Modules/CompanyMember/CompanyMemberModel.js';
-import TaskRequest from '../Modules/TaskRequest/TaskRequestModel.js';
-import Page from '../Modules/Page/PageModel.js';
 import Setting from '../Modules/Setting/SettingModel.js';
 import FaqCategory from '../Modules/FaqCategory/FaqCategoryModel.js';
 import Faq from '../Modules/Faq/FaqModel.js';
@@ -47,7 +43,6 @@ import GroupAdmin from '../Modules/GroupAdmin/GroupAdminModel.js';
 // import UserReport from '../Modules/UserReport/UserReportModel.js';
 import Email from '../Modules/Email/EmailModel.js';
 import ProjectSkill from '../Modules/ProjectSkill/ProjectSkillModel.js';
-import TaskComment from '../Modules/TaskComment/TaskCommentModel.js';
 import GroupRequest from '../Modules/GroupRequest/GroupRequestModel.js';
 import JobOfferRequest from '../Modules/JobOfferRequest/JobOfferRequestModel.js';
 import Plan from '../Modules/Plan/PlanModel.js';
@@ -59,12 +54,12 @@ const syncModels = async () => {
     const sequelize = await SequelizeConfig();
     try {
         const models = [
-            User, Otp, Salary, Reject, ProjectCategory, ProjectCategoryPrice,
-            Reaction, Category, Tag, Group, Report, Post, PostTag, Comment, CommentLike, CommentReport, PostReaction, Save,
+            User, Otp, Salary, Reject, CategoryPrice,
+            Category, Tag, Group, Report, Post, PostTag, Comment, CommentLike, CommentReport, PostReaction, Save,
             PostReport, Permission, Role, PermissionRole, RoleUser, UserActivity, TagUserActivity, Skill, Company, Project,
-            ProjectRequest, ProjectTask, ProjectReport, CompanyReport, CompanyMember, TaskRequest, Page, Setting, FaqCategory,
+            ProjectRequest, ProjectTask, ProjectReport, CompanyReport, CompanyMember, , Setting, FaqCategory,
             Faq, Story, ProjectPro, JobOffer, JobOfferReport, GroupMember, GroupAdmin, Email, ProjectSkill,
-            TaskComment, GroupRequest, JobOfferRequest, Plan, PlanUser, LikePost,
+            GroupRequest, JobOfferRequest, Plan, PlanUser, LikePost,
             ResetPassword,
         ];
 
