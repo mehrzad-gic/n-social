@@ -1,6 +1,6 @@
 import createHttpError from 'http-errors';
 import Category from './CategoryModel.js';
-import { createCategorySchema } from "./validation";
+import { createCategorySchema,updateCategorySchema } from "./validation";
 import { makeSlug } from '../../Helpers/Helper.js';
 
 

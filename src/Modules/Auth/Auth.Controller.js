@@ -6,6 +6,7 @@ import createHttpError from "http-errors";
 import OTP from "../Otp/OtpModel.js";
 import jwt from 'jsonwebtoken';
 import { registerSchema, loginSchema, resetPasswordSchema } from './validation.js';
+import { checkUser } from "../../Middlewares/Auth.js";
 
 
 function jwtToken(user, expire = '30s') {
@@ -188,18 +189,19 @@ function verify_token(req, res, next) {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.decode(token);
 
-        jwt.verify(token, process.env.SECRET_KEY, (err, verified) => {
+        jwt.verify(token, process.env.SECRET_KEY, async (err, verified) => {
+            
+            if(!await checkUser(verified,next)) next(createHttpError.NotFound('user not found')) 
             
             if (err) {
+
                 if (err.name === 'TokenExpiredError') {
 
                     const expiredAt = new Date(err.expiredAt).getTime();
                     const now = new Date().getTime();
                     const refreshPeriod = 20 * 24 * 60 * 60 * 1000; // 20 days in milliseconds
 
-                    if (now - expiredAt > refreshPeriod) {
-                        return next(createHttpError.Forbidden('Token Expired'));
-                    }
+                    if (now - expiredAt > refreshPeriod) return next(createHttpError.Forbidden('Token Expired'));
 
                     const refreshed_jwt = jwtToken(decoded, '10s');
                     const newToken = refreshed_jwt.token;

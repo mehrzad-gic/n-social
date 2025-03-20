@@ -1,7 +1,17 @@
 import jwt from 'jsonwebtoken';
 import createHttpError from 'http-errors';
 import { jwtToken } from '../Modules/Auth/Auth.Controller.js';
+import User from '../Modules/User/UserModel.js';
+import { UserNotFoundInToken, TokenExpired, InvalidToken, TokenNotFound, TokenNotValid, AuthorizationHeaderMissing, TokenMissing } from '../Common/Messages.js';
 
+export const checkUser = async (userDTO,next) => {
+    try{
+        const user = await User.findByPk(userDTO.id);
+        if(!user) return false;
+    } catch(err){   
+        next(err)
+    }
+}
 
 
 // Middleware to authenticate the user
@@ -14,39 +24,39 @@ import { jwtToken } from '../Modules/Auth/Auth.Controller.js';
 // 7. Continue to the next middleware or route handler
 // 8. Handle errors if any and pass them to the error handling middleware
 function auth(req, res, next) {
+
     try {
+
         // Check if authorization header exists
-        if (!req.headers.authorization) {
-            return next(createHttpError.Unauthorized('Authorization header missing'));
-        }
+        if (!req.headers?.authorization) return next(createHttpError.Unauthorized(AuthorizationHeaderMissing));
 
         // Extract token from header
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            return next(createHttpError.Unauthorized('Token missing'));
-        }
+        if (!token) return next(createHttpError.Unauthorized(TokenMissing));
+        
 
         // Verify the token
-        jwt.verify(token, process.env.SECRET_KEY, (err, verified) => {
+        jwt.verify(token, process.env.SECRET_KEY,async (err, verified) => {
 
             if (err) {
             
                 if (err.name === 'TokenExpiredError') {
+
+                   // Decode the expired token to get user data
+                   const decoded = jwt.decode(token);
+                   if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));
+                   
+
+                    // checkUser
+                    if (!await checkUser(decoded)) next(createHttpError.NotFound(UserNotFoundInToken))
 
                     const expiredAt = new Date(err.expiredAt).getTime();
                     const now = new Date().getTime();
                     const refreshPeriod = 20 * 24 * 60 * 60 * 1000; // 20 days in milliseconds
 
                     // Check if the token is within the refresh period
-                    if (now - expiredAt > refreshPeriod) {
-                        return next(createHttpError.Forbidden('Token Expired'));
-                    }
-
-                    // Decode the expired token to get user data
-                    const decoded = jwt.decode(token);
-                    if (!decoded) {
-                        return next(createHttpError.Unauthorized('Invalid Token'));
-                    }
+                    if (now - expiredAt > refreshPeriod) return next(createHttpError.Forbidden(TokenExpired));
+                    
 
                     // Generate a new token
                     const refreshed_jwt = jwtToken(decoded, '10s');
@@ -60,14 +70,15 @@ function auth(req, res, next) {
                     return next();
 
                 } else {
-                    return next(createHttpError.Unauthorized('Invalid Token'));
+                    return next(createHttpError.Unauthorized(InvalidToken));
                 }
             }
 
             // If the token is valid, extract user data
-            if (!verified) {
-                return next(createHttpError.Unauthorized('Invalid Token'));
-            }
+            if (!verified) return next(createHttpError.Unauthorized(InvalidToken));
+
+            // checkUser
+            if (!await checkUser(verified)) next(createHttpError.NotFound(UserNotFoundInToken))
 
             const userDTO = {
                 id: verified.id,
@@ -93,7 +104,6 @@ function auth(req, res, next) {
         });
 
     } catch (error) {
-
         next(error);
     }
 }
