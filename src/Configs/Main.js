@@ -7,7 +7,7 @@ import Routes from './Routes.js';
 const app = express();
 import dotenv from 'dotenv';
 dotenv.config(); // Load environment variables
-import Associations from './Associations.js';
+import Associations from '../Common/Associations.js';
 
 export default async function Main() {
 

@@ -4,7 +4,7 @@
   "description": "shop aplication with express,mysql ",
   "main": "index.js",
   "scripts": {
-    "sync": "node src/Configs/syncModels.js",
+    "sync": "node src/Common/syncModels.js",
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

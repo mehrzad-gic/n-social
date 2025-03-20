@@ -64,6 +64,7 @@ const JobOffer = sequelize.define('JobOffer', {
         comment: '0 => internship, 1 => junior, 2 => midLevel, 3 => senior'
     }
 }, {
+    tableName:'job_offers',
     timestamps: true
 });
 

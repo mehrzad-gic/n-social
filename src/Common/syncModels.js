@@ -53,15 +53,19 @@ import ResetPassword from '../Modules/ResetPassword/ResetPasswordModel.js';
 const syncModels = async () => {
     const sequelize = await SequelizeConfig();
     try {
+
         const models = [
-            User, Otp, Salary, Reject, CategoryPrice,
-            Category, Tag, Group, Report, Post, PostTag, Comment, CommentLike, CommentReport, PostReaction, Save,
+            User, Otp, Salary, Reject,
+            Category,CategoryPrice, Tag, Group, Report, Post, PostTag, Comment, CommentLike, CommentReport, PostReaction, Save,
             PostReport, Permission, Role, PermissionRole, RoleUser, UserActivity, TagUserActivity, Skill, Company, Project,
-            ProjectRequest, ProjectTask, ProjectReport, CompanyReport, CompanyMember, , Setting, FaqCategory,
+            ProjectRequest, ProjectTask, ProjectReport, CompanyReport, CompanyMember,Setting, FaqCategory,
             Faq, Story, ProjectPro, JobOffer, JobOfferReport, GroupMember, GroupAdmin, Email, ProjectSkill,
             GroupRequest, JobOfferRequest, Plan, PlanUser, LikePost,
             ResetPassword,
         ];
+
+        console.log(models.length);
+        
 
         for (const model of models) {
             await model.sync({ alter: true }); // Use { force: true } to drop and recreate the table

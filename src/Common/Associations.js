@@ -47,7 +47,7 @@ import UserActivity from '../Modules/UserActivity/UserActivityModel.js'; // Adju
 
 
 // Setting up the associations
-export default function Associations() {
+export default function Associations() { 
 
     // User associations
     User.hasMany(Post, { foreignKey: 'user_id' });

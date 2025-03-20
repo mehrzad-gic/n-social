@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
 
-const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
+const CategoryPrice = sequelize.define('CategoryPrice', {
     id: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
@@ -33,8 +33,9 @@ const ProjectCategoryPrice = sequelize.define('ProjectCategoryPrice', {
         onUpdate: 'CASCADE'
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    tableName:"category_prices"
 });
 
 
-export default ProjectCategoryPrice;
+export default CategoryPrice;

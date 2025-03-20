@@ -20,7 +20,8 @@ const FaqCategory = sequelize.define('FaqCategory', {
         defaultValue: 1
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    tableName:'faq_categories'
 });
 
 export default FaqCategory;
