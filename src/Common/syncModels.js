@@ -1,4 +1,4 @@
-import { SequelizeConfig } from './Sequelize.js';
+import { SequelizeConfig } from '../Configs/Sequelize.js';
 import logger from 'node-color-log';
 import User from '../Modules/User/UserModel.js';
 import Otp from '../Modules/Otp/OtpModel.js';
