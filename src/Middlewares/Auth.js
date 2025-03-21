@@ -6,8 +6,9 @@ import { UserNotFoundInToken, TokenExpired, InvalidToken, TokenNotFound, TokenNo
 
 export const checkUser = async (userDTO,next) => {
     try{
-        const user = await User.findByPk(userDTO.id);
+        const user = await User.findByPk(userDTO.id);        
         if(!user) return false;
+        return true
     } catch(err){   
         next(err)
     }
@@ -44,8 +45,7 @@ function auth(req, res, next) {
 
                    // Decode the expired token to get user data
                    const decoded = jwt.decode(token);
-                   if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));
-                   
+                   if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));                   
 
                     // checkUser
                     if (!await checkUser(decoded)) next(createHttpError.NotFound(UserNotFoundInToken))

@@ -109,12 +109,12 @@ async function sendOTP(req, res, next) {
 
         if (otpRecord && otpRecord.expires_in > now) throw new createHttpError.BadRequest('An OTP code has already been sent to your email');
 
-        const otp_code = makeOTP();
-        await OTP.create({ code: otp_code[0], expires_in: otp_code[1], user_id: user.id });
+        const {code,expire} = makeOTP();
+        await OTP.create({ code: code, expires_in: expire, user_id: user.id ,email:user.email });
 
         if(otpRecord) await otpRecord.destroy();
         const subject = 'Your OTP Code';
-        const text = `Your OTP code is: ${otp_code[0]}. It will expire in 2 minutes.`;
+        const text = `Your OTP code is: ${code}. It will expire in 2 minutes.`;
 
         await sendMail(user.email, subject, text);
 
@@ -154,7 +154,9 @@ async function checkOTP(req, res, next) {
 }
 
 async function resetPassword(req, res, next) {
+
     try {
+        
         await resetPasswordSchema.validate(req.body);
 
         const { email } = req.body;
