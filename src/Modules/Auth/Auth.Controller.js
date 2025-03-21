@@ -5,7 +5,7 @@ import { sendMail } from "../../Helpers/NodeMailer.js";
 import createHttpError from "http-errors";
 import OTP from "../Otp/OtpModel.js";
 import jwt from 'jsonwebtoken';
-import { registerSchema, loginSchema, resetPasswordSchema } from './validation.js';
+import { registerSchema, loginSchema, resetPasswordSchema, confirmResetPasswordSchema } from './validation.js';
 import { checkUser } from "../../Middlewares/Auth.js";
 
 
@@ -191,17 +191,22 @@ async function resetPassword(req, res, next) {
 }
 
 async function confirmResetPassword(req, res, next) {
+    
     try {
-        const { email, token, newPassword } = req.body;
+    
+        const { email, token, password, password_confirmation } = req.body;
 
-        const resetRecord = await ResetPassword.findOne({ where: { email, token } });
+        await confirmResetPasswordSchema.validate(req.body);
+
+        const resetRecord = await ResetPassword.findOne({where: {token: token , email: email}});
         if (!resetRecord) throw new createHttpError.NotFound("Invalid or expired reset token");
+
 
         const now = Date.now();
         if (resetRecord.expires_in < now) throw new createHttpError.Forbidden("Reset token has expired");
 
         const user = await User.findByPk(resetRecord.user_id);
-        user.password = await makeHashPassword(newPassword);
+        user.password = await makeHashPassword(password);
 
         await user.save();
         await resetRecord.destroy(); // Remove the used reset token
@@ -212,6 +217,7 @@ async function confirmResetPassword(req, res, next) {
         await sendMail(user.email, subject, text);
 
         res.status(200).json({ success: true, message: 'Password reset successfully. You can now log in with your new password.' });
+   
     } catch (e) {
         next(e);
     }

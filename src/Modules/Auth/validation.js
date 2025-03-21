@@ -16,8 +16,15 @@ const resetPasswordSchema = yup.object().shape({
     email: yup.string().email().required()
 });
 
+const confirmResetPasswordSchema = yup.object().shape({
+    token: yup.string().required(),
+    password: yup.string().required(),
+    password_confirmation: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match').required()
+});
+
 export {
     registerSchema,
     loginSchema,
-    resetPasswordSchema
+    resetPasswordSchema,
+    confirmResetPasswordSchema
 };
