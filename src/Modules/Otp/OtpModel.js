@@ -15,6 +15,10 @@ const OTP = SequelizeConfig.define('otp',{
         type : BIGINT,
         allowNull : false
     },
+    email:{
+        type : STRING,
+        allowNull : false
+    },
     user_id:{
         type : BIGINT,
         references: {

@@ -32,8 +32,11 @@ function jwtToken(user, expire = '30s') {
     return { token, userDTO };
 }
 
+
 async function register(req, res, next) {
+
     try {
+
         await registerSchema.validate(req.body);
 
         const existingUser = await checkExistByField('email', req.body.email, 'users');
@@ -47,13 +50,18 @@ async function register(req, res, next) {
         const user = await User.create({ name, slug, email, password: hash_password });
 
         res.status(201).json({ data: user, message: 'User Registered Successfully', success: true });
+
     } catch (e) {
         next(e);
     }
+    
 }
 
+
 async function login(req, res, next) {
+
     try {
+
         await loginSchema.validate(req.body);
 
         const { email, password } = req.body;
@@ -62,24 +70,39 @@ async function login(req, res, next) {
 
         if (!await verifyHashPassword(user.password, password)) throw new createHttpError.Forbidden("Invalid Password");
 
-        const jwtTokenResult = jwtToken(user);
-        const token = jwtTokenResult.token;
-        const userDTO = jwtTokenResult.userDTO;
-        const data = { token: token, user: userDTO };
+        // check otp time
+        const otp_record = await OTP.findOne({ where: { user_id: user.id } });
+        if (otp_record && otp_record.expires_in > Date.now()) throw new createHttpError.BadRequest('An OTP code has already been sent to your email');  
 
-        return res.status(200).json({ success: true, message: 'Login successful', data : data });
+        // send otp code
+        const new_otp_record = await OTP.create({
+            code: makeOTP().code,
+            expires_in: makeOTP().expire,
+            user_id: user.id,
+            email: user.email
+        });
+
+        if(otp_record) await otp_record.destroy();
+        
+        const subject = 'Your OTP Code';
+        const text = `Your OTP code is: ${new_otp_record.code}. It will expire in 2 minutes.`;
+        await sendMail(user.email, subject, text);
+
+        return res.status(200).json({ success: true, message: 'OTP sent successfully  and please check your email and verify your account' });
+
     } catch (e) {
         next(e);
     }
+
 }
 
 async function sendOTP(req, res, next) {
+
     try {
+
         const { email } = req.body;
         const user = await checkExistByField('email', email, 'users');
         if (!user) throw new createHttpError.NotFound('404 - User not found');
-
-        if (user.email_verified_at) throw new createHttpError.BadRequest('User is already active');
 
         const otpRecord = await OTP.findOne({ where: { user_id: user.id } });
         const now = new Date().getTime();
@@ -89,21 +112,25 @@ async function sendOTP(req, res, next) {
         const otp_code = makeOTP();
         await OTP.create({ code: otp_code[0], expires_in: otp_code[1], user_id: user.id });
 
+        if(otpRecord) await otpRecord.destroy();
         const subject = 'Your OTP Code';
         const text = `Your OTP code is: ${otp_code[0]}. It will expire in 2 minutes.`;
 
         await sendMail(user.email, subject, text);
 
         res.status(200).json({ success: true, message: 'OTP sent successfully' });
+
     } catch (e) {
         next(e);
     }
 }
 
 async function checkOTP(req, res, next) {
+
     try {
-        const { otp } = req.body;
-        const otpRecord = await OTP.findOne({ where: { code: otp } });
+
+        const { code, email } = req.body;
+        const otpRecord = await OTP.findOne({ where: { code, email } });
         if (!otpRecord) throw new createHttpError.NotFound('OTP not found');
 
         const now = new Date().getTime();
@@ -114,7 +141,13 @@ async function checkOTP(req, res, next) {
 
         await user.save();
 
-        res.status(200).json({ success: true, message: 'User is now active' });
+        const jwtTokenResult = jwtToken(user);
+        const token = jwtTokenResult.token;
+        const userDTO = jwtTokenResult.userDTO;
+        const data = { token: token, user: userDTO };
+
+        res.status(200).json({ success: true, token, user: userDTO, message: 'User is now active and logged in' });
+
     } catch (e) {
         next(e);
     }
