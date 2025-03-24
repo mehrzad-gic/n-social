@@ -20,10 +20,10 @@ function Routes(app) {
     app.use('/auth', authRoutes);
 
     // Tag routes
-    app.use(tagRoutes);
+    app.use('/tags',auth,tagRoutes);
 
     // Post routes with authentication middleware
-    app.use('/posts', auth, postRoutes);
+    app.use('/posts', auth, postRoutes); 
 
 
     // Test routes

@@ -25,6 +25,7 @@ async function create(req, res, next) {
     try {
 
         const { name, status } = req.body;
+
         await tagCreateSchema.validate({ name, status });
         const slug = await makeSlug(name, 'tags');
 
@@ -76,7 +77,9 @@ async function destroy(req, res, next) {
     try {
 
         const { slug } = req.params;
-        const tag = await Tag.update({ status: 0 }, { where: { slug } });
+        const tag = await Tag.findOne({where:{slug:slug}});
+        if(!tag) throw new createHttpError.NotFound('Tag Not Found');
+        await tag.destroy();
         res.status(200).json({ message: 'Tag deleted', success: true, data: tag });
 
     } catch (error) {
