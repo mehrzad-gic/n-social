@@ -4,13 +4,13 @@ import { jwtToken } from '../Modules/Auth/Auth.Controller.js';
 import User from '../Modules/User/UserModel.js';
 import { UserNotFoundInToken, TokenExpired, InvalidToken, TokenNotFound, TokenNotValid, AuthorizationHeaderMissing, TokenMissing } from '../Common/Messages.js';
 
-export const checkUser = async (userDTO,next) => {
+export const checkUser = async (userDTO) => {
     try{
         const user = await User.findByPk(userDTO.id);        
         if(!user) return false;
         return true
     } catch(err){   
-        next(err)
+        return false
     }
 }
 

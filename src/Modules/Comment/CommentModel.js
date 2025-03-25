@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../Configs/Sequelize.js'; // Adjust the path as necessary
 
-const Comment = sequelize.define('Comment', {
+const Comment = sequelize.define('comment', {
     id: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
