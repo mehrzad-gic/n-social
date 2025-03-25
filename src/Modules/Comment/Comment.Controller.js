@@ -323,13 +323,26 @@ async function create(req, res, next) {
             parent_id: 0
         }, { transaction });
 
+
+        // new comment
+        const newComment = await Comment.findOne({
+            attributes: ["id", "text", "createdAt", "likes", "status", "commentable_id", "commentable_type", "parent_id", "deep"],
+            where: {id:comment.id},
+            include: [
+                {
+                    model: User,
+                    attributes: ["id", "name", "slug", "email", "img"]
+                }
+            ]
+        },{transaction})
+
         // Commit the transaction
         await transaction.commit();
 
         // Don't send entire session in response
         res.json({
             success: true,
-            comment,
+            comment:newComment,
             message: 'Comment added successfully'
         });
 

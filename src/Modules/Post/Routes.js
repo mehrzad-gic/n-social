@@ -10,7 +10,7 @@ router.post("/create", upload.array("imgs[]"), PostController.store);
 router.put("/:slug/update", PostController.update);
 router.patch('/:slug/change-status', PostController.change_status);
 router.delete("/:slug/delete", PostController.destroy);
-// router.post("/:slug/like", PostController.like);
+router.post("/like/:id", PostController.like);
 // router.post("/:slug/unlike", PostController.unlike);
 // router.post("/:slug/save", PostController.save);
 // router.post("/:slug/remove-save", PostController.removeSave);

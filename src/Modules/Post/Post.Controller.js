@@ -10,7 +10,7 @@ import PostTag from "../PostTag/PostTagModel.js";
 import UploadQueue from "../../Queues/UpoladQueue.js";
 import Comment from "../Comment/CommentModel.js";
 import LikeComment from "../CommentLike/CommentLikeModel.js";
-
+import sequelize from "../../Configs/Sequelize.js";
 
 // Fetch all posts with related user and group data
 // Also include liked/saved status for the current user if available in the session object
@@ -125,54 +125,89 @@ async function show(req, res, next) {
 }
  
 async function store(req, res, next) {
-  
+
+    let transaction;
+    
     try {
 
-        // req.body
-        const {name,text,tags} = req.body;
-    
-        // slug
-        const slug = await makeSlug(name,'posts');
+        // Start transaction
+        transaction = await sequelize.transaction();
 
-        // create post
-        const post = await Post.create({
-            name,
-            text,
-            slug,
-            user_id : req.session.user.id,
-            comment_status : 1
-        });
-
-        // sync tags to post_tags pivot table
-        if (tags && Array.isArray(tags)) {
-            const tagPromises = tags.map(tagId => {
-                return PostTag.create({
-                    post_id: post.id,
-                    tag_id: tagId
-                });
-            });
-            await Promise.all(tagPromises);
+        // Validate required fields
+        const { name, text, tags } = req.body;
+        if (!name || !text) {
+            throw new createHttpError.BadRequest('Name and text are required');
         }
-                
+
+        // Generate slug
+        const slug = await makeSlug(name, 'posts');
+
+        // Create post and increment user's post count in parallel
+        const [post, userUpdate] = await Promise.all([
+            Post.create({
+                name,
+                text,
+                slug,
+                user_id: req.session.user.id,
+                comment_status: 1,
+                status: 1 // Add default status
+            }, { transaction }),
+            User.increment('post_count', {
+                by: 1,
+                where: { id: req.session.user.id },
+                transaction
+            })
+        ]);
+
+        // Handle tags if provided
+        if (tags && Array.isArray(tags) && tags.length > 0) {
+            const tagRecords = tags.map(tagId => ({
+                post_id: post.id,
+                tag_id: tagId
+            }));
+            await PostTag.bulkCreate(tagRecords, { transaction });
+        }
+
         // Queue the file upload job
-        await UploadQueue.add('post-upload', {
-            files: req.files,
-            postId: post.id // Pass the post ID to associate with the upload
-        });
+        if (req.files && req.files.length > 0) {
+            await UploadQueue.add('post-upload', {
+                files: req.files,
+                postId: post.id
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 2000
+                }
+            });
+        }
 
-        // response
+        // Commit transaction
+        await transaction.commit();
+
         res.json({
-            success:true,
-            message:'Post Created Successfully and file be upload very soon',
-            post
+            success: true,
+            message: 'Post created successfully',
         });
-        
-    } catch (error) {
-        console.error('Error uploading files:', error);
-        res.status(500).json({ error: 'Failed to upload files' });
-    }
 
-}
+    } catch (error) {
+
+        // Rollback transaction if it exists
+        if (transaction) {
+            await transaction.rollback();
+        }
+
+        // Log error for debugging
+        console.error('Post creation error:', error);
+
+        // Handle specific error types
+        if (error instanceof createHttpError.HttpError) {
+            next(error);
+        } else {
+            next(new createHttpError.InternalServerError('Failed to create post'));
+        }
+    }
+} 
 
 async function update(req, res, next) {
     try {
@@ -345,13 +380,11 @@ async function removeSave(req,res,next) {
 //! PostLike Actions --------------------------------------------
 async function like(req,res,next) {
     
-    const {slug} = req.params;
+    const {id} = req.params;
 
     try{
 
-        const post = await Post.findOne({
-            where:{slug:slug}
-        })
+        const post = await Post.findByPk(id);
 
         if(!post) return next(createHttpError.NotFound('Post not found'));
         
@@ -359,19 +392,24 @@ async function like(req,res,next) {
             where:{post_id:post.id,user_id:req.session.user.id}
         })
 
-        if(isLiked) throw createHttpError.BadRequest('You already liked this post and this request will not be processed ');
-
-        await post.increment('likes');
-
-        const like = await LikePost.create({
-            post_id:post.id,
-            user_id:req.session.user.id,
-            status:1
-        })
+        let type = null;
+        if(!isLiked) {
+            type = 'increment';
+            await post.increment('likes');
+            await LikePost.create({
+                post_id:post.id,
+                user_id:req.session.user.id,
+                status:1
+            })
+        }else{
+            type = 'decrement';
+            await post.decrement('likes');
+            await isLiked.destroy();
+        }
 
         res.json({
+            type,
             success:true,
-            like,
             token:req.session.token,
             user:req.session.user,
             message : 'Post liked successfully'
