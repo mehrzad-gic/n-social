@@ -3,6 +3,7 @@ import authRoutes from '../Modules/Auth/Routes.js';
 import auth from '../Middlewares/Auth.js';
 import tagRoutes from '../Modules/Tag/Routes.js';
 import postRoutes from '../Modules/Post/Routes.js';
+import commentRoutes from '../Modules/Comment/Routes.js';
 
 function Routes(app) {
 
@@ -19,11 +20,14 @@ function Routes(app) {
     // Authentication routes
     app.use('/auth', authRoutes);
 
-    // Tag routes
+    // Tag routes 
     app.use('/tags',auth,tagRoutes);
 
     // Post routes with authentication middleware
     app.use('/posts', auth, postRoutes); 
+
+    // comments
+    app.use('/comments/', auth, commentRoutes); 
 
 
     // Test routes

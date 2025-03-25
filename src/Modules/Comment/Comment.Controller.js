@@ -5,7 +5,7 @@ import CommentReport from "../CommentReport/CommentReportModel.js";
 import User from "../User/UserModel.js";
 import pool from "../../Configs/Mysql2.js";
 import {createCommentSchema} from "./validation.js";
-import {ALLOWED_MODELS} from "../Constants.js";
+import {ALLOWED_MODELS} from "./Constants.js";
 import Report from "../Report/ReportModel.js";
 import deleteChildQueue from "../../Queues/DeleteChildQueue.js";
 
@@ -257,7 +257,6 @@ async function create(req,res,next) {
 
     try{
 
-
         // validate model
         if(!ALLOWED_MODELS.includes(model)) return next(createHttpError.BadRequest('Invalid model'));
         
@@ -266,15 +265,15 @@ async function create(req,res,next) {
         if(error) return next(createHttpError.BadRequest(error.message));
 
         // get commentable
-        const commentable = await pool.query(`SELECT * FROM ?? WHERE ?? = ?`,[model.toLowerCase(),"id",id])
-        if(!commentable) return next(createHttpError.NotFound('Commentable not found'));
- 
+        const commentable = await pool.query(`SELECT id,slug,name  FROM ?? WHERE ?? = ?`,[model.toLowerCase(),"id",id])
+        if(!commentable?.[0]?.[0]) return next(createHttpError.NotFound('Commentable not found'));     
+
         const comment = await Comment.create({
             user_id:req.session.user.id,
             text:req.body.text,
             status:0,
             commentable_id:commentable.id,
-            commentable_type:model,
+            commentable_type:id,
             deep:0,
             parent_id:0
         })
