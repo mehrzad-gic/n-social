@@ -240,7 +240,7 @@ async function destroy(req, res, next) {
     }
 }
 
-async function change_status(req, res, next) {
+async function changeStatus(req, res, next) {
     try {
         const { slug } = req.params;
         const post = await Post.findOne({
@@ -305,20 +305,23 @@ async function save(req,res,next) {
     
     try{
 
+        const {id} = req.params;
+
         const post = await Post.findOne({
-            where:{slug:slug}
+            where:{id}
         })
 
-        if(!post){
-            return next(createHttpError.NotFound('Post not found'));
-        }
+        if(!post) return next(createHttpError.NotFound('Post not found'));
+        
 
         let save = await Save.findOne({
             where:{saveable_id:post.id,user_id:req.session.user.id}
         })
-
+    
+        let type = null;
         if(save){
             await save.destroy();
+            type = 'decrement';
         }else{
             save = await Save.create({
                 saveable_id:post.id,
@@ -326,11 +329,12 @@ async function save(req,res,next) {
                 user_id:req.session.user.id,
                 status:1
             })
+            type = 'increment';
         }
 
         res.json({
             success:true,
-            save,
+            type,
             token:req.session.token,
             user:req.session.user,
             message : 'Post saved successfully'
@@ -341,40 +345,6 @@ async function save(req,res,next) {
     }
 
 }
-
-async function removeSave(req,res,next) {
-
-    const {slug} = req.params;
-
-    try{
-
-        const post = await Post.findOne({
-            where:{slug:slug}
-        })
-
-        if(!post) return next(createHttpError.NotFound('Post not found'));
-
-        const save = await Save.findOne({
-            where:{saveable_type:'posts',saveable_id:post.id,user_id:req.session.user.id}
-        })
-
-        if(!save) return next(createHttpError.NotFound('Save not found'));
-
-        await save.destroy();
-
-        res.json({
-            success:true,
-            message:'Post removed from saved',
-            token:req.session.token,
-            user:req.session.user,
-        })
-
-    }catch(e){
-        next(e);
-    }
-
-}
-
 
 
 //! PostLike Actions --------------------------------------------
@@ -461,16 +431,15 @@ async function unlike(req,res,next){
 
 
 
-export default {
+export {
     index,
     show,
     store,
     update,
     destroy,
-    change_status,
+    changeStatus,
     like,
     comments,
     save,
-    removeSave,
     unlike
 };

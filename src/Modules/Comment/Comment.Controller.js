@@ -218,63 +218,33 @@ async function likeComment(req, res, next) {
             where: { comment_id: comment.id, user_id: req.session.user.id }
         })
 
-        if (isLiked) throw createHttpError.BadRequest('You already liked this comment and this request will not be processed ');
 
-        await comment.increment('likes');
+        let type = 'increment';
 
-        const like = await CommentLike.create({
-            comment_id: comment.id,
-            user_id: req.session.user.id,
-            status: 1
-        })
+        if(isLiked){
+            await comment.decrement('likes');
+            type = 'decrement';
+            await isLiked.destroy();
+        } else {
+            await comment.increment('likes');
+            type = 'increment';
+            await CommentLike.create({
+                comment_id: comment.id,
+                user_id: req.session.user.id,
+                status: 1
+            })
+        }
 
         res.json({
             success: true,
-            like,
-            token: req.session.token,
-            user: req.session.user,
-            message: 'Comment liked successfully'
+            type,
+            message: `Comment ${type === 'increment' ? 'liked' : 'unliked'} successfully`
         });
 
     } catch (e) {
         next(e);
     }
 
-}
-
-
-async function unlikeComment(req, res, next) {
-
-    const { comment_id } = req.params;
-
-    try {
-
-        const comment = await Comment.findOne({
-            where: { id: comment_id }
-        })
-
-        if (!comment) return next(createHttpError.NotFound('Comment not found'));
-
-        const like = await CommentLike.findOne({
-            where: { comment_id: comment.id, user_id: req.session.user.id }
-        })
-
-        if (!like) return next(createHttpError.NotFound('Like not found'));
-
-        await like.destroy();
-
-        await comment.decrement('likes');
-
-        res.json({
-            success: true,
-            message: 'Comment unliked successfully',
-            token: req.session.token,
-            user: req.session.user,
-        })
-
-    } catch (e) {
-        next(e);
-    }
 }
 
 
@@ -405,5 +375,5 @@ async function reportComment(req,res,next){
 
 
 export { 
-    index, show, change_status, add_reply,create,delete_comment,likeComment,unlikeComment,reportComment 
+    index, show, change_status, add_reply,create,delete_comment,likeComment,reportComment 
 }
