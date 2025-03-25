@@ -8,6 +8,8 @@ import {createCommentSchema} from "./validation.js";
 import {ALLOWED_MODELS} from "./Constants.js";
 import Report from "../Report/ReportModel.js";
 import deleteChildQueue from "../../Queues/DeleteChildQueue.js";
+import Post from "../Post/PostModel.js";
+import sequelize from "../../Configs/Sequelize.js";
 
 
 async function index(req, res, next) {
@@ -251,43 +253,75 @@ async function unlikeComment(req, res, next) {
 }
 
 
-async function create(req,res,next) {
-    
-    const {id,model} = req.query;
+async function create(req, res, next) {
 
-    try{
+    const { id, model } = req.query;
 
-        // validate model
-        if(!ALLOWED_MODELS.includes(model)) return next(createHttpError.BadRequest('Invalid model'));
-        
-        // validate text
-        const {error} = createCommentSchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
+    // Validate model early
+    if (!ALLOWED_MODELS.includes(model)) return next(createHttpError.BadRequest('Invalid model'));
 
-        // get commentable
-        const commentable = await pool.query(`SELECT id,slug,name  FROM ?? WHERE ?? = ?`,[model.toLowerCase(),"id",id])
-        if(!commentable?.[0]?.[0]) return next(createHttpError.NotFound('Commentable not found'));     
+    // Validate text early
+    const { error } = createCommentSchema.validate(req.body);
+    if (error) return next(createHttpError.BadRequest(error.message));
+
+    // Validate session user exists
+    if (!req.session?.user?.id) return next(createHttpError.Unauthorized('User not authenticated'));
+
+    let transaction;
+    try {
+
+        // Start a transaction
+        transaction = await sequelize.transaction();
+
+        let commentAbel = null;
+        switch (model.toLowerCase()) { 
+
+            case 'posts':
+                commentAbel = await Post.findByPk(id, { transaction });
+                if (!commentAbel) throw new createHttpError.NotFound('Post not found');
+                await commentAbel.increment('comments_count', { transaction });
+            break;
+
+            // other models logic will be implemented soon
+
+            default:
+                throw new createHttpError.BadRequest('Model can not be computed');
+        }
 
         const comment = await Comment.create({
-            user_id:req.session.user.id,
-            text:req.body.text,
-            status:0,
-            commentable_id:commentable.id,
-            commentable_type:id,
-            deep:0,
-            parent_id:0
-        })
+            user_id: req.session.user.id,
+            text: req.body.text,
+            status: 0,
+            commentable_id: commentAbel.id,
+            commentable_type: model.toLowerCase(),
+            deep: 0,
+            parent_id: 0
+        }, { transaction });
 
+        // Commit the transaction
+        await transaction.commit();
+
+        // Don't send entire session in response
         res.json({
-            success:true,
+            success: true,
             comment,
-            token:req.session.token,
-            user:req.session.user,
-            message : 'Comment added successfully'
+            message: 'Comment added successfully'
         });
 
-    }catch(e){
-        next(e);
+    } catch (e) {
+
+        // Rollback transaction if it exists
+        if (transaction) await transaction.rollback();
+        
+        // Log the error for debugging (consider using a proper logger)
+        console.error('Comment creation error:', e);
+        
+        // Don't expose internal errors to client
+        const httpError = e instanceof createHttpError.HttpError 
+            ? e 
+            : createHttpError.InternalServerError('Failed to create comment');
+        next(httpError);
+        
     }
 
 }
