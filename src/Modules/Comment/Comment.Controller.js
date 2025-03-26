@@ -204,12 +204,13 @@ async function delete_comment(req, res, next) {
 
 async function likeComment(req, res, next) {
 
-    const { comment_id } = req.params;
+    const { id } = req.params;
 
     try {
 
         const comment = await Comment.findOne({
-            where: { id: comment_id }
+            attributes : ["id","likes","text","createdAt","updatedAt"],
+            where: { id }
         })
 
         if (!comment) return next(createHttpError.NotFound('Comment not found'));
@@ -218,9 +219,7 @@ async function likeComment(req, res, next) {
             where: { comment_id: comment.id, user_id: req.session.user.id }
         })
 
-
         let type = 'increment';
-
         if(isLiked){
             await comment.decrement('likes');
             type = 'decrement';
@@ -251,7 +250,8 @@ async function likeComment(req, res, next) {
 async function create(req, res, next) {
 
     const { id, model } = req.query;
-
+    const { parent_id } = req.body;
+    
     // Validate model early
     if (!ALLOWED_MODELS.includes(model)) return next(createHttpError.BadRequest('Invalid model'));
 
@@ -261,6 +261,42 @@ async function create(req, res, next) {
 
     // Validate session user exists
     if (!req.session?.user?.id) return next(createHttpError.Unauthorized('User not authenticated'));
+
+
+    if(parent_id){
+        const parentComment = await Comment.findOne({
+            where: { id: parent_id },
+            include: [
+                {
+                    model: User,
+                    attributes: ["id", "name", "slug", "email", "img"]
+                }
+            ],
+            attributes: ["id", "text", "createdAt", "likes", "status", "commentable_id", "commentable_type", "parent_id", "deep"]
+        });
+        if(!parentComment) return next(createHttpError.NotFound('Parent comment not found'));
+        if(parentComment.commentable_type !== model) return next(createHttpError.BadRequest('Parent comment is not from the same model'));
+        if(parentComment.commentable_id !== id) return next(createHttpError.BadRequest('Parent comment is not from the same post'));
+        if(parentComment.deep >= 3) return next(createHttpError.BadRequest('Parent comment is not from the same post'));
+        
+        // create reply
+        const reply = await Comment.create({
+            user_id: req.session.user.id,
+            text: req.body.text,
+            status: 0,
+            commentable_id: id,
+            commentable_type: model,
+            parent_id: parent_id,
+            deep: parentComment.deep + 1
+        })
+
+        res.json({
+            success: true,
+            reply,
+            message: 'Reply added successfully'
+        })
+    }
+
 
     let transaction;
     try {
