@@ -1,6 +1,6 @@
 import createHttpError from 'http-errors';
 import Category from './CategoryModel.js';
-import { createCategorySchema,updateCategorySchema } from "./validation";
+import { createCategorySchema,updateCategorySchema } from "./validation.js";
 import { makeSlug } from '../../Helpers/Helper.js';
 
 
@@ -36,10 +36,11 @@ async function create(req,res,next) {
             })
         }
 
-        const slug = makeSlug(req.body.name,'categories');
+        const slug = await makeSlug(req.body.name,'categories');
 
         const category = await Category.create({
             name:req.body.name,
+            icon:req.body.icon, 
             slug:slug,
             status:1,
         });
@@ -61,6 +62,12 @@ async function update(req,res,next) {
 
     try {
         
+        const {slug} = req.params;
+
+        const category = await Category.findOne({where: {slug:slug}});
+
+        if(!category) throw new createHttpError.NotFound("Category not found");
+
         const {error} = updateCategorySchema.validate(req.body);
 
         if(error) {
@@ -69,10 +76,6 @@ async function update(req,res,next) {
                 message:error.message
             })
         }
-
-        const category = await Category.findByPk(req.params.id);
-
-        if(!category) throw new createHttpError.NotFound("Category not found");
 
         category.name = req.body.name;
         category.status = req.body.status;
@@ -96,12 +99,14 @@ async function update(req,res,next) {
 async function destroy(req,res,next) {
 
     try {
+
+        const {slug} = req.params;  
+
+        const category = await Category.findOne({where: {slug:slug}});
+
+        if(!category) throw new createHttpError.NotFound("Category not found");
         
-        const category = await Category.destroy({
-            where: {
-                id:req.params.id
-            }
-        })
+        await category.destroy();
 
         res.json({
             success:true,
@@ -121,8 +126,10 @@ async function destroy(req,res,next) {
 async function show(req,res,next) {
 
     try {
-        
-        const category = await Category.findByPk(req.params.id);
+
+        const {slug} = req.params;
+
+        const category = await Category.findOne({where: {slug:slug}});
 
         if(!category) throw new createHttpError.NotFound("Category not found");
 
@@ -132,7 +139,7 @@ async function show(req,res,next) {
             message:"Category fetched successfully",
             token:req.session.token,
             user:req.session.user,
-        })
+        }) 
 
     } catch (error) {
         next(error)       
@@ -142,8 +149,10 @@ async function show(req,res,next) {
 
 async function change_status(req,res,next) {
     try {
-        
-        const category = await Category.findByPk(req.params.id);
+            
+        const {slug} = req.params;
+
+        const category = await Category.findOne({where: {slug:slug}});
 
         if(!category) throw new createHttpError.NotFound("Category not found");
 

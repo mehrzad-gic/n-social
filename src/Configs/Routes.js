@@ -4,7 +4,7 @@ import auth from '../Middlewares/Auth.js';
 import tagRoutes from '../Modules/Tag/Routes.js';
 import postRoutes from '../Modules/Post/Routes.js';
 import commentRoutes from '../Modules/Comment/Routes.js';
-
+import categoryRoutes from '../Modules/Category/Routes.js';
 function Routes(app) {
 
     // Middleware to parse JSON bodies
@@ -28,6 +28,9 @@ function Routes(app) {
 
     // comments
     app.use('/comments/', auth, commentRoutes); 
+
+    // Category routes
+    app.use('/categories', auth, categoryRoutes);
 
 
     // Test routes
