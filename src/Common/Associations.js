@@ -105,6 +105,7 @@ export default function Associations() {
     Comment.belongsTo(Post, { foreignKey: 'post_id' });
     Comment.hasMany(CommentLike, { foreignKey: 'comment_id' });
     Comment.hasMany(CommentReport, { foreignKey: 'comment_id' });
+    Comment.hasMany(Comment, { foreignKey: 'parent_id', as: 'replies' });
 
     // Company associations
     Company.belongsTo(User, { foreignKey: 'user_id' });

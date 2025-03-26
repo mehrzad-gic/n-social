@@ -15,21 +15,21 @@ import logger from "node-color-log";
 
 async function index(req, res, next) {
 
-    const { model, page, limit ,id } = req.query;
+    const { model, page, limit ,id,parent_id } = req.query;
 
     if(!ALLOWED_MODELS.includes(model)) throw new createHttpError.BadRequest('model is not allowed')
 
     try {
 
         const pageNumber = parseInt(page) || 1;
-        const pageLimit = parseInt(limit) || 20;
+        const pageLimit = parseInt(limit) || 5;
         const offset = (pageNumber - 1) * pageLimit;
 
         // conditions
         const conditions = {
             where: {
                 commentable_id: id,
-                commentable_type: model.toLowerCase()
+                commentable_type: model.toLowerCase(),
             },
             attributes: [
                 "id",
@@ -47,6 +47,17 @@ async function index(req, res, next) {
                     model: User,
                     attributes: ["id", "name", "slug", "email", "img","title"]
                 },
+                {
+                    model: Comment,
+                    as: "replies",
+                    attributes: ["id", "text", "createdAt","likes","status"],
+                    include: [
+                        {
+                            model: User,
+                            attributes: ["id", "name", "slug", "email", "img","title"]
+                        }
+                    ]
+                }
             ],
             order: [
                 ["createdAt", "DESC"]
@@ -55,8 +66,8 @@ async function index(req, res, next) {
             offset: offset
         }
 
-
-
+        if(parent_id) conditions.where.parent_id = parent_id;
+        
         const comments = await Comment.findAll(conditions)
 
         const comment_likes = await CommentLike.findAll({
@@ -275,8 +286,8 @@ async function create(req, res, next) {
             attributes: ["id", "text", "createdAt", "likes", "status", "commentable_id", "commentable_type", "parent_id", "deep"]
         });
         if(!parentComment) return next(createHttpError.NotFound('Parent comment not found'));
-        if(parentComment.commentable_type !== model) return next(createHttpError.BadRequest('Parent comment is not from the same model'));
-        if(parentComment.commentable_id !== id) return next(createHttpError.BadRequest('Parent comment is not from the same post'));
+        if(parentComment.commentable_type != model) return next(createHttpError.BadRequest('Parent comment is not from the same model'));
+        if(parentComment.commentable_id != id) return next(createHttpError.BadRequest('Parent comment is not from the same post'));
         if(parentComment.deep >= 3) return next(createHttpError.BadRequest('Parent comment is not from the same post'));
         
         // create reply
@@ -290,9 +301,24 @@ async function create(req, res, next) {
             deep: parentComment.deep + 1
         })
 
-        res.json({
+        const newReply = await Comment.findOne({
+            attributes: ["id", "text", "createdAt", "likes", "status", "commentable_id", "commentable_type", "parent_id", "deep"],
+            where: {id:reply.id},
+            include: [
+                {
+                    model: User,
+                    attributes: ["id", "name", "slug", "email", "img"]
+                },
+                {
+                    model: Comment,
+                    as: "replies",
+                    attributes: ["id", "text", "createdAt"],
+                }
+            ]
+        })
+        return res.json({
             success: true,
-            reply,
+            reply: newReply,
             message: 'Reply added successfully'
         })
     }
@@ -330,6 +356,9 @@ async function create(req, res, next) {
         }, { transaction });
 
 
+        // Commit the transaction
+        await transaction.commit();
+
         // new comment
         const newComment = await Comment.findOne({
             attributes: ["id", "text", "createdAt", "likes", "status", "commentable_id", "commentable_type", "parent_id", "deep"],
@@ -338,17 +367,25 @@ async function create(req, res, next) {
                 {
                     model: User,
                     attributes: ["id", "name", "slug", "email", "img"]
+                },
+                {
+                    model: Comment,
+                    as: "replies",
+                    attributes: ["id", "text", "createdAt"],
+                    include: [
+                        {
+                            model: User,
+                            attributes: ["id", "name", "slug", "email", "img"]
+                        }
+                    ]
                 }
             ]
-        },{transaction})
-
-        // Commit the transaction
-        await transaction.commit();
+        })
 
         // Don't send entire session in response
         res.json({
             success: true,
-            comment:newComment,
+            comment: newComment,
             message: 'Comment added successfully'
         });
 
