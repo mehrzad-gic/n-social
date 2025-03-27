@@ -4,10 +4,10 @@ const router = Router();
 
 
 router.get('/', FaqCategoryController.index);
-router.get('/show/:id', FaqCategoryController.show);
+router.get('/show/:slug', FaqCategoryController.show);
 router.post('/create', FaqCategoryController.create);
-router.put('/update/:id', FaqCategoryController.update);
-router.delete('/delete/:id', FaqCategoryController.destroy);
-router.put('/change-status/:id', FaqCategoryController.change_status);
+router.put('/update/:slug', FaqCategoryController.update);
+router.delete('/delete/:slug', FaqCategoryController.destroy);
+router.put('/change-status/:slug', FaqCategoryController.change_status);
 
 export default router;

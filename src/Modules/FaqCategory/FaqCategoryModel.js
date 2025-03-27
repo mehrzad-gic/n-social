@@ -11,6 +11,11 @@ const FaqCategory = sequelize.define('FaqCategory', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        unique: true,
+    },
     des: {
         type: DataTypes.TEXT,
         allowNull: true
