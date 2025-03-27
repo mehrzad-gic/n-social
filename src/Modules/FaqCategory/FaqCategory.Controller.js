@@ -26,7 +26,7 @@ async function show(req,res,next){
 
     try {
         
-        const faqCategory = await FaqCategory.findByPk(req.params.id);
+        const faqCategory = await FaqCategory.findOne({where:{slug:req.params.slug}});
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
 
         res.status(200).json({
@@ -69,7 +69,7 @@ async function update(req,res,next){
         const {error} = FaqCategorySchema.validate(req.body);
         if(error) return next(createHttpError.BadRequest(error.message));
 
-        const faqCategory = await FaqCategory.findByPk(req.params.id);
+        const faqCategory = await FaqCategory.findOne({where:{slug:req.params.slug}});
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
 
         await faqCategory.update(req.body);
@@ -90,7 +90,7 @@ async function destroy(req,res,next){
 
     try {
 
-        const faqCategory = await FaqCategory.findByPk(req.params.id);
+        const faqCategory = await FaqCategory.findOne({where:{slug:req.params.slug}});
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
 
         await faqCategory.destroy();
@@ -111,7 +111,7 @@ async function change_status(req,res,next){
 
     try {
     
-        const faqCategory = await FaqCategory.findByPk(req.params.id);
+        const faqCategory = await FaqCategory.findOne({where:{slug:req.params.slug}});
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
 
         await faqCategory.update({status: faqCategory.status === 1 ? 0 : 1});

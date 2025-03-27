@@ -7,6 +7,7 @@ import commentRoutes from '../Modules/Comment/Routes.js';
 import categoryRoutes from '../Modules/Category/Routes.js';
 import reportRoutes from '../Modules/Report/Routes.js';
 import rejectRoutes from '../Modules/Reject/Routes.js';
+import faqCategoryRoutes from '../Modules/FaqCategory/Routes.js';
 
 function Routes(app) {
 
@@ -35,9 +36,14 @@ function Routes(app) {
     // Category routes
     app.use('/categories', auth, categoryRoutes);
 
+    // reports
     app.use('/reports', auth, reportRoutes);
 
+    // rejects
     app.use('/rejects', auth, rejectRoutes);
+
+    // faqCategory
+    app.use('/faq-categories', auth, faqCategoryRoutes);
 
 
     // Test routes
