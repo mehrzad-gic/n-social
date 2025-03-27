@@ -1,5 +1,6 @@
 import ReportModel from "./ReportModel.js";
-import {createReportSchema, updateReportSchema} from "./validation.js";
+import {schema} from "./validation.js";
+import {makeSlug} from "../../Helpers/Helper.js"; // Adjust the path as necessary
 
 async function index(req,res,next){
 
@@ -19,9 +20,9 @@ async function show(req,res,next){
 
     try{
 
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const report = await ReportModel.findByPk(id);
+        const report = await ReportModel.findOne({where: {slug}});
 
         if(!report) return res.status(404).json({message: "Report not found",success: false});
 
@@ -37,14 +38,15 @@ async function create(req,res,next){
 
     try{
 
-        const {error} = createReportSchema.validate(req.body);
+        const {error} = schema.validate(req.body);
 
         if(error) return res.status(400).json({message: error.message});
 
         const report = await ReportModel.create({
             name: req.body.name,
             status: req.body.status,
-            rate: req.body.rate
+            rate: req.body.rate,
+            slug: await makeSlug(req.body.name,'reports')
         });
 
         return res.status(200).json({message: "Report created successfully",success: true,report});
@@ -59,13 +61,13 @@ async function update(req,res,next){
 
     try{
 
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const report = await ReportModel.findByPk(id);
+        const report = await ReportModel.findOne({where: {slug}});
 
         if(!report) return res.status(404).json({message: "Report not found"});
 
-        const {error} = updateReportSchema.validate(req.body);
+        const {error} = schema.validate(req.body);
 
         if(error) return res.status(400).json({message: error.message});
 
@@ -87,9 +89,9 @@ async function destroy(req,res,next){
 
     try{
 
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const report = await ReportModel.findByPk(id);
+        const report = await ReportModel.findOne({where: {slug}});
 
         if(!report) return res.status(404).json({message: "Report not found",success: false});
 
@@ -107,9 +109,9 @@ async function change_status(req,res,next){
 
     try{
 
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const report = await ReportModel.findByPk(id);
+        const report = await ReportModel.findOne({where: {slug}});
 
         if(!report) return res.status(404).json({message: "Report not found",success: false});
 

@@ -5,6 +5,8 @@ import tagRoutes from '../Modules/Tag/Routes.js';
 import postRoutes from '../Modules/Post/Routes.js';
 import commentRoutes from '../Modules/Comment/Routes.js';
 import categoryRoutes from '../Modules/Category/Routes.js';
+import reportRoutes from '../Modules/Report/Routes.js';
+
 function Routes(app) {
 
     // Middleware to parse JSON bodies
@@ -31,6 +33,8 @@ function Routes(app) {
 
     // Category routes
     app.use('/categories', auth, categoryRoutes);
+
+    app.use('/reports', auth, reportRoutes);
 
 
     // Test routes

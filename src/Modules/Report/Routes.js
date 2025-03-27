@@ -1,13 +1,13 @@
 import { Router } from "express";
-import ReportController from "./Report.Controller.js";
+import {index,change_status,create,update,show,destroy} from "./Report.Controller.js";
 
 const router = Router();
 
-router.get("/", ReportController.index);
-router.get("/show/:id", ReportController.show);
-router.post("/create", ReportController.create);
-router.put("/update/:id", ReportController.update);
-router.delete("/delete/:id", ReportController.destroy);
-router.patch("/change-status/:id", ReportController.change_status);
+router.get("/", index);
+router.get("/show/:slug", show);
+router.post("/create", create);
+router.put("/update/:slug", update);
+router.delete("/delete/:slug", destroy);
+router.put("/change-status/:slug", change_status);
 
 export default router;

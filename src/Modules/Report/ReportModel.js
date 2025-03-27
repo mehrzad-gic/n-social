@@ -11,6 +11,11 @@ const Report = sequelize.define('Report', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
     status: {
         type: DataTypes.TINYINT,
         defaultValue: 1
