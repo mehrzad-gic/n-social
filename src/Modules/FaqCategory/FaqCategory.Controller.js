@@ -1,7 +1,7 @@
 import FaqCategory from "./FaqCategoryModel.js";
 import { FaqCategorySchema } from "./validation.js";
 import createHttpError from "http-errors";
-
+import {makeSlug} from '../../Helpers/Helper.js';
 
 
 async function index(req,res,next){
@@ -45,10 +45,14 @@ async function create(req,res,next){
 
     try {
         
-        const {error} = FaqCategorySchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
+        await FaqCategorySchema.validate(req.body);
 
-        const faqCategory = await FaqCategory.create(req.body);
+        const faqCategory = await FaqCategory.create({
+            name: req.body.name,
+            status: req.body.status,
+            des: req.body.des,
+            slug: await makeSlug(req.body.name,'faq_categories')
+        });
 
         res.status(201).json({
             success: true,
@@ -66,8 +70,7 @@ async function update(req,res,next){
 
     try {
         
-        const {error} = FaqCategorySchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
+        await FaqCategorySchema.validate(req.body);
 
         const faqCategory = await FaqCategory.findOne({where:{slug:req.params.slug}});
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
