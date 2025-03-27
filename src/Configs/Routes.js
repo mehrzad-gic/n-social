@@ -6,6 +6,7 @@ import postRoutes from '../Modules/Post/Routes.js';
 import commentRoutes from '../Modules/Comment/Routes.js';
 import categoryRoutes from '../Modules/Category/Routes.js';
 import reportRoutes from '../Modules/Report/Routes.js';
+import rejectRoutes from '../Modules/Reject/Routes.js';
 
 function Routes(app) {
 
@@ -35,6 +36,8 @@ function Routes(app) {
     app.use('/categories', auth, categoryRoutes);
 
     app.use('/reports', auth, reportRoutes);
+
+    app.use('/rejects', auth, rejectRoutes);
 
 
     // Test routes

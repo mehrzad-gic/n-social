@@ -11,6 +11,11 @@ const Reject = sequelize.define('Reject', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug:{
+        allowNull: false,
+        unique: true,
+        type: DataTypes.STRING
+    },
     status: {
         type: DataTypes.TINYINT,
         allowNull: false

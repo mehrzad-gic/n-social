@@ -2,6 +2,8 @@ import Reject from './RejectModel.js';
 import rejectValidation from './validation.js';
 import createHttpError from 'http-errors';
 import { Op } from 'sequelize';
+import {makeSlug} from '../../Helpers/Helper.js';
+
 
 async function index(req,res,next){
 
@@ -20,7 +22,7 @@ async function index(req,res,next){
         res.status(200).json({
             success:true,
             message:'Rejects fetched successfully',
-            data:rejects
+            rejects
         })
 
     } catch (error) {
@@ -34,16 +36,16 @@ async function show(req,res,next){
 
     try {
 
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const reject = await Reject.findByPk(id);
+        const reject = await Reject.findOne({where:{slug:slug}});
 
         if(!reject) return next(createHttpError.NotFound('Reject not found'));
 
         res.status(200).json({
             success:true,
             message:'Reject fetched successfully',
-            data:reject
+            reject
         })
 
     } catch (error) {
@@ -65,12 +67,14 @@ async function create(req,res,next){
         const {name,status,type} = req.body;
         
         const reject = await Reject.create({
-            name,status,type
+            name,status,type,slug: await makeSlug(name,'rejects')
         })
 
         res.status(201).json({
             success:true,
+            reject
         })
+
     } catch (error) {
         next(error);
     }
@@ -81,15 +85,15 @@ async function update(req,res,next){
 
     try {
         
-        const {id} = req.params;
+        const {slug} = req.params;
+
+        const reject = await Reject.findOne({where:{slug:slug}});
 
         const {error} = rejectValidation.validate(req.body);
 
         if(error) return next(createHttpError.BadRequest(error.message));
 
         const {name,status,type} = req.body;  
-
-        const reject = await Reject.findByPk(id);
 
         if(!reject) return next(createHttpError.NotFound('Reject not found'));
 
@@ -112,9 +116,9 @@ async function destroy(req,res,next){
 
     try {
         
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const reject = await Reject.findByPk(id);
+        const reject = await Reject.findOne({where:{slug:slug}});
 
         if(!reject) return next(createHttpError.NotFound('Reject not found'));
 
@@ -135,9 +139,9 @@ async function changeStatus(req,res,next){
 
     try {
         
-        const {id} = req.params;
+        const {slug} = req.params;
 
-        const reject = await Reject.findByPk(id);
+        const reject = await Reject.findOne({where:{slug:slug}});
 
         if(!reject) return next(createHttpError.NotFound('Reject not found'));
 
@@ -146,7 +150,7 @@ async function changeStatus(req,res,next){
         res.status(200).json({
             success:true,
             message:'Reject status changed successfully',
-            data:reject
+            reject
         })
 
     } catch (error) {

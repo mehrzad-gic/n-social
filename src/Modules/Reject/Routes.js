@@ -3,11 +3,11 @@ import { index,show,create,update,destroy,changeStatus } from './Reject.Controll
 const router = Router();
 
 router.get('/',index);
-router.get('/show/:id',show);
+router.get('/show/:slug',show);
 router.post('/create',create);
-router.put('/update/:id',update);
-router.delete('/delete/:id',destroy);
-router.put('/change-status/:id',changeStatus);
+router.put('/update/:slug',update);
+router.delete('/delete/:slug',destroy);
+router.put('/change-status/:slug',changeStatus);
 
 export default router;
 
