@@ -11,6 +11,11 @@ const Faq = sequelize.define('Faq', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        unique: true
+    },
     answer: {
         type: DataTypes.TEXT,
         allowNull: true

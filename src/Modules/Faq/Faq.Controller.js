@@ -2,6 +2,7 @@ import Faq from "./FaqModel.js";
 import FaqCategory from "../FaqCategory/FaqCategoryModel.js";
 import { FaqSchema } from "./validation.js";
 import createHttpError from "http-errors";
+import { makeSlug } from "../../Helpers/Helper.js";
 
 
 async function index(req,res,next){
@@ -27,7 +28,7 @@ async function show(req,res,next){
 
     try {
 
-        const faq = await Faq.findByPk(req.params.id);
+        const faq = await Faq.findOne({where: {slug: req.params.slug}});
         if(!faq) return next(createHttpError.NotFound("Faq not found"));
 
         res.status(200).json({
@@ -46,16 +47,27 @@ async function create(req,res,next){
 
     try {
      
-        const {error} = FaqSchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
+        const {name,status,answer,category_id} = req.body;
 
-        const faqCategory = await FaqCategory.findByPk(req.body.category_id);
+        const { error } = FaqSchema.validate(req.body);
+        
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
+
+        const faqCategory = await FaqCategory.findByPk(category_id);
         if(!faqCategory) return next(createHttpError.NotFound("Faq category not found"));
 
-        const faq = await Faq.create(req.body);
+        const faq = await Faq.create({
+            name,
+            status,
+            answer,
+            category_id,
+            slug: await makeSlug(name, "faqs")
+        });
 
         res.status(201).json({
             success: true,
+            faq,
+            message: 'Faq Created Successfully'
         });
 
     } catch (error) {
@@ -70,9 +82,13 @@ async function update(req,res,next){
     try {
  
         const {error} = FaqSchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
-
-        const faq = await Faq.findByPk(req.params.id);
+        if(error) {
+            return res.status(400).json({
+                success:false,
+                message:error.message
+            })
+        }
+        const faq = await Faq.findOne({where: {slug: req.params.slug}});
         if(!faq) return next(createHttpError.NotFound("Faq not found"));
 
         const faqCategory = await FaqCategory.findByPk(req.body.category_id);
@@ -95,7 +111,7 @@ async function destroy(req,res,next){
 
     try {
     
-        const faq = await Faq.findByPk(req.params.id);
+        const faq = await Faq.findOne({where: {slug: req.params.slug}});
         if(!faq) return next(createHttpError.NotFound("Faq not found"));
 
         await faq.destroy();
@@ -111,11 +127,11 @@ async function destroy(req,res,next){
 }
 
 
-async function change_status(req,res,next){
+async function changeStatus(req,res,next){
 
     try {
         
-        const faq = await Faq.findByPk(req.params.id);
+        const faq = await Faq.findOne({where: {slug: req.params.slug}});
         if(!faq) return next(createHttpError.NotFound("Faq not found"));
 
         await faq.update({status: faq.status === 1 ? 0 : 1});
@@ -137,5 +153,5 @@ export {
     create,
     update,
     destroy,
-    change_status
+    changeStatus 
 }
