@@ -18,12 +18,12 @@ async function create(req, res, next) {
         const {error} = categoryPriceSchema.validate(req.body);
         if(error) throw createError.BadRequest(error.message);
 
-        const categoryPrice = await CategoryPrice.create({name, min, max, status, category_id});
+        const categoryPrice = await CategoryPrice.create({name, min, max, status, category_id: categoryExists.id});
 
         res.status(200).json({
             message: "Category price created successfully",
             categoryPrice,
-            status: true
+            success: true
         });
 
     } catch (error) {
@@ -49,7 +49,7 @@ async function update(req, res, next) {
 
         res.status(200).json({
             message: "Category price updated successfully",
-            status: true
+            success: true
         });
         
     } catch (error) {
@@ -81,6 +81,7 @@ async function show(req, res, next) {
         res.status(200).json({
             message: "Category price fetched successfully",
             categoryPrice,
+            success: true
         });
    
     } catch (error) {
@@ -94,12 +95,12 @@ async function index(req, res, next) {
 
     try {
 
-        const {category} = req.params;
+        const { category } = req.params;
         if(!category) throw createError.BadRequest("Category id is required");
         const categoryExists = await Category.findOne({where: {slug: category}});
         if(!categoryExists) throw createError.NotFound("Category not found");
 
-        const {page, limit,status} = req.query;
+        const {page = 1, limit = 10, status = 1} = req.query;
         const offset = (page - 1) * limit;
 
         const categoryPrices = await CategoryPrice.findAll({
@@ -122,6 +123,7 @@ async function index(req, res, next) {
         res.status(200).json({
             message: "Category prices fetched successfully",
             categoryPrices,
+            success: true,
         });
 
     } catch (error) {
@@ -144,7 +146,7 @@ async function destroy(req, res, next) {
         
         res.status(200).json({
             message: "Category price deleted successfully",
-            status: true
+            success: true
         });
         
     } catch (error) {
@@ -168,7 +170,7 @@ async function changeStatus(req, res, next) {
 
         res.status(200).json({
             message: "Category price status updated successfully",
-            status: true
+            success: true,
         });
 
     } catch (error) {

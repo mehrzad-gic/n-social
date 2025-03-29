@@ -5,6 +5,7 @@ import LikePost from '../Modules/LikePost/LikePostModel.js'; // Adjust the path 
 import Save from '../Modules/Save/SaveModel.js'; // Adjust the path as necessary
 import Comment from '../Modules/Comment/CommentModel.js'; // Adjust the path as necessary
 import Category from '../Modules/Category/CategoryModel.js'; // Adjust the path as necessary
+import CategoryPrice from '../Modules/CategoryPrice/CategoryPriceModel.js'; // Adjust the path as necessary
 import CommentLike from '../Modules/CommentLike/CommentLikeModel.js'; // Adjust the path as necessary
 import CommentReport from '../Modules/CommentReport/CommentReportModel.js'; // Adjust the path as necessary
 import Company from '../Modules/Company/CompanyModel.js'; // Adjust the path as necessary
@@ -163,6 +164,9 @@ export default function Associations() {
     TagUserActivity.belongsTo(User, { foreignKey: 'user_id' });
     
     UserActivity.belongsTo(Tag, { foreignKey: 'tag_id' });
+
+    Category.hasMany(CategoryPrice, { foreignKey: 'category_id' });
+    CategoryPrice.belongsTo(Category, { foreignKey: 'category_id' });
 
 }
  

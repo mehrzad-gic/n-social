@@ -6,7 +6,6 @@ const categoryPriceSchema = joi.object({
     min: joi.number().required(),
     max: joi.number().required(),
     status: joi.number().valid(0, 1).required(),
-    category_id: joi.number().required()
 });
 
 

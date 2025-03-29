@@ -21,8 +21,6 @@ function Routes(app) {
         return res.send("Hello NodeJS");
     });
 
-
-
     // Authentication routes
     app.use('/auth', authRoutes);
 
@@ -39,7 +37,7 @@ function Routes(app) {
     app.use('/categories', auth, categoryRoutes);
 
     // Category Price routes
-    app.use('/category-price', auth, categoryPriceRoutes);   
+    app.use('/category-prices', auth, categoryPriceRoutes);   
 
     // reports
     app.use('/reports', auth, reportRoutes);
