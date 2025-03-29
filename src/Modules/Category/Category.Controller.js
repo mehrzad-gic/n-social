@@ -27,14 +27,8 @@ async function create(req,res,next) {
 
     try {
         
-        const {error} = createCategorySchema.validate(req.body);
-
-        if(error) {
-            return res.status(400).json({
-                success:false,
-                message:error.message
-            })
-        }
+        const { error } = createCategorySchema.validate(req.body);
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
 
         const slug = await makeSlug(req.body.name,'categories');
 
@@ -64,18 +58,11 @@ async function update(req,res,next) {
         
         const {slug} = req.params;
 
+        const { error } = updateCategorySchema.validate(req.body);
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
+
         const category = await Category.findOne({where: {slug:slug}});
-
         if(!category) throw new createHttpError.NotFound("Category not found");
-
-        const {error} = updateCategorySchema.validate(req.body);
-
-        if(error) {
-            return res.status(400).json({
-                success:false,
-                message:error.message
-            })
-        }
 
         category.name = req.body.name;
         category.status = req.body.status;

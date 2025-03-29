@@ -9,6 +9,7 @@ import reportRoutes from '../Modules/Report/Routes.js';
 import rejectRoutes from '../Modules/Reject/Routes.js';
 import faqCategoryRoutes from '../Modules/FaqCategory/Routes.js';
 import faqRoutes from '../Modules/Faq/Routes.js';
+import categoryPriceRoutes from '../Modules/CategoryPrice/Routes.js';
 
 function Routes(app) {
 
@@ -36,6 +37,9 @@ function Routes(app) {
 
     // Category routes
     app.use('/categories', auth, categoryRoutes);
+
+    // Category Price routes
+    app.use('/category-price', auth, categoryPriceRoutes);   
 
     // reports
     app.use('/reports', auth, reportRoutes);

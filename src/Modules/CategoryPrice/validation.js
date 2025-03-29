@@ -1,12 +1,12 @@
-import * as yup from "yup";
+import joi from "joi";
 
 
-const categoryPriceSchema = yup.object().shape({
-    name: yup.string().required(),
-    min: yup.number().required(),
-    max: yup.number().required(),
-    status: yup.number().oneOf([0,1]).required(),
-    category_id: yup.number().required()
+const categoryPriceSchema = joi.object({
+    name: joi.string().required(),
+    min: joi.number().required(),
+    max: joi.number().required(),
+    status: joi.number().valid(0, 1).required(),
+    category_id: joi.number().required()
 });
 
 

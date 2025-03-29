@@ -1,7 +1,7 @@
-import CategoryPrice from "./CategoryPriceModel";
-import { categoryPriceSchema } from "./validation";
+import CategoryPrice from "./CategoryPriceModel.js";
+import { categoryPriceSchema } from "./validation.js";
 import createError from "http-errors";
-import Category from "../Category/CategoryModel";
+import Category from "../Category/CategoryModel.js";
 
 
 async function create(req, res, next) {

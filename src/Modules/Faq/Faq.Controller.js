@@ -50,7 +50,6 @@ async function create(req,res,next){
         const {name,status,answer,category_id} = req.body;
 
         const { error } = FaqSchema.validate(req.body);
-        
         if (error) throw new createHttpError.BadRequest(error.details[0].message);
 
         const faqCategory = await FaqCategory.findByPk(category_id);
@@ -81,13 +80,9 @@ async function update(req,res,next){
 
     try {
  
-        const {error} = FaqSchema.validate(req.body);
-        if(error) {
-            return res.status(400).json({
-                success:false,
-                message:error.message
-            })
-        }
+        const { error } = FaqSchema.validate(req.body);
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
+        
         const faq = await Faq.findOne({where: {slug: req.params.slug}});
         if(!faq) return next(createHttpError.NotFound("Faq not found"));
 
