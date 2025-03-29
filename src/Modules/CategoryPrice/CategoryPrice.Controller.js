@@ -100,21 +100,25 @@ async function index(req, res, next) {
         const categoryExists = await Category.findOne({where: {slug: category}});
         if(!categoryExists) throw createError.NotFound("Category not found");
 
-        const {page = 1, limit = 10, status = 1} = req.query;
+        const {page, limit, status} = req.query;
         const offset = (page - 1) * limit;
+        const where = {
+            category_id: categoryExists.id // Filter by the category id
+        }; 
+        status && (where.status = status); // Filter by status if provided
 
+        console.log(where);
+        
         const categoryPrices = await CategoryPrice.findAll({
-            where: {
-                status: status
-            },
+            where,
             include: [
                 {
                     model: Category,
                     attributes: ["id", "name", "slug"]
                 }
             ],
-            offset,
-            limit,
+            offset : offset || 0, // Default to 0 if page is not provided
+            limit : parseInt(limit) || 100, // Default limit to 10 if not provided
             order: [
                 ['createdAt', 'DESC']
             ]
