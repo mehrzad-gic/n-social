@@ -8,13 +8,15 @@ async function create(req, res, next) {
 
     try {
         
-        const {name, min, max, status, category_id} = req.body;
+        const {category} = req.params;
+        if(!category) throw createError.BadRequest("Category id is required");
+        const categoryExists = await Category.findOne({where: {slug: category}});
+        if(!categoryExists) throw createError.NotFound("Category not found");
+
+        const {name, min, max, status} = req.body;
 
         const {error} = categoryPriceSchema.validate(req.body);
         if(error) throw createError.BadRequest(error.message);
-
-        const category = await Category.findByPk(category_id);
-        if(!category) throw createError.NotFound("Category not found");
 
         const categoryPrice = await CategoryPrice.create({name, min, max, status, category_id});
 
@@ -36,17 +38,14 @@ async function update(req, res, next) {
     try {
     
         const {id} = req.params;
-        const {name, min, max, status, category_id} = req.body;
+        const {name, min, max, status} = req.body;
         const {error} = categoryPriceSchema.validate(req.body);
         if(error) throw createError.BadRequest(error.message);
 
         const categoryPrice = await CategoryPrice.findByPk(id);
         if(!categoryPrice) throw createError.NotFound("Category price not found");
 
-        const category = await Category.findByPk(category_id);
-        if(!category) throw createError.NotFound("Category not found");
-
-        await categoryPrice.update({name, min, max, status, category_id});
+        await categoryPrice.update({name, min, max, status});
 
         res.status(200).json({
             message: "Category price updated successfully",
@@ -94,7 +93,12 @@ async function show(req, res, next) {
 async function index(req, res, next) {
 
     try {
-        
+
+        const {category} = req.params;
+        if(!category) throw createError.BadRequest("Category id is required");
+        const categoryExists = await Category.findOne({where: {slug: category}});
+        if(!categoryExists) throw createError.NotFound("Category not found");
+
         const {page, limit,status} = req.query;
         const offset = (page - 1) * limit;
 
