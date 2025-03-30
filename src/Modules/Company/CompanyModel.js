@@ -11,6 +11,14 @@ const Company = sequelize.define('Company', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    slug: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true, // Ensure the slug is unique
+        validate: {
+            notEmpty: true // Ensure it is not empty
+        }
+    },
     des: {
         type: DataTypes.TEXT,
         allowNull: false
