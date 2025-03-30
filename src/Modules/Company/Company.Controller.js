@@ -69,7 +69,7 @@ async function create(req, res, next) {
     try {
 
         const { error } = createCompanySchema.validate(req.body);
-        if (error) return next(createHttpError.BadRequest(error.message));
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
 
         const company = await Company.create({
             name: req.body.name,
@@ -109,7 +109,7 @@ async function update(req, res, next) {
     try {
 
         const { error } = updateCompanySchema.validate(req.body);
-        if (error) return next(createHttpError.BadRequest(error.message));
+        if (error) throw new createHttpError.BadRequest(error.details[0].message);
 
         const company = await Company.findOne({where: { slug: req.params.slug }}); // Use slug for fetching the company to update
         if (!company) return next(createHttpError.NotFound("Company not found"));

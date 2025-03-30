@@ -4,11 +4,11 @@ const router = Router();
 
 
 router.get('/', CompanyController.index);
-router.get('/show/:id', CompanyController.show);
+router.get('/show/:slug', CompanyController.show);
 router.post('/create', CompanyController.create);
-router.put('/update/:id', CompanyController.update);
-router.delete('/delete/:id', CompanyController.destroy);
-router.put('/change-status/:id', CompanyController.change_status);
-router.post('/report/:id', CompanyController.report);
+router.put('/update/:slug', CompanyController.update);
+router.delete('/delete/:slug', CompanyController.destroy);
+router.put('/change-status/:slug', CompanyController.change_status);
+router.post('/report/:slug', CompanyController.report);
 
 export default router;

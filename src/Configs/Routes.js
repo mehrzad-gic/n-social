@@ -10,6 +10,7 @@ import rejectRoutes from '../Modules/Reject/Routes.js';
 import faqCategoryRoutes from '../Modules/FaqCategory/Routes.js';
 import faqRoutes from '../Modules/Faq/Routes.js';
 import categoryPriceRoutes from '../Modules/CategoryPrice/Routes.js';
+import companyRoutes from '../Modules/Company/Routes.js'; // Assuming you have a Company module
 
 function Routes(app) {
 
@@ -50,6 +51,9 @@ function Routes(app) {
 
     // FAQ routes 
     app.use('/faqs', auth , faqRoutes);
+
+    // Company routes 
+    app.use('/companies', auth, commentRoutes)
 
 
     // Test routes
