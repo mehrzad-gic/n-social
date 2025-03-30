@@ -1,10 +1,9 @@
 import Company from "./CompanyModel.js";
 import { createCompanySchema, updateCompanySchema } from "./validation.js";
 import createHttpError from "http-errors";
-import UploadQueue from "../../Queues/UploadQueue.js";
+import UploadQueue from "../../Queues/UpoladQueue.js";
 import CompanyReport from "../CompanyReport/CompanyReportModel.js";
 import Project from "../Project/ProjectModel.js";
-
 
 
 async function index(req, res, next) {
