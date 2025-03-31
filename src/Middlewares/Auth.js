@@ -8,47 +8,33 @@ export const checkUser = async (userDTO) => {
     try{
         const user = await User.findByPk(userDTO.id);        
         if(!user) return false;
-        return true
+        return { user, status: true }
     } catch(err){   
-        return false
+        return { status: false }
     }
 }
 
-
-// Middleware to authenticate the user
-// 1. Check if the authorization header exists
-// 2. Extract the token from the header
-// 3. Verify the token
-// 4. If the token is valid, extract user data
-// 5. Attach user data to the request object
-// 6. If the token is expired, generate a new token and attach it to the request object
-// 7. Continue to the next middleware or route handler
-// 8. Handle errors if any and pass them to the error handling middleware
 function auth(req, res, next) {
-
     try {
-
         // Check if authorization header exists
         if (!req.headers?.authorization) return next(createHttpError.Unauthorized(AuthorizationHeaderMissing));
 
         // Extract token from header
         const token = req.headers.authorization.split(' ')[1];
         if (!token) return next(createHttpError.Unauthorized(TokenMissing));
-        
 
         // Verify the token
-        jwt.verify(token, process.env.SECRET_KEY,async (err, verified) => {
+        jwt.verify(token, process.env.SECRET_KEY, async (err, verified) => {
 
             if (err) {
-            
                 if (err.name === 'TokenExpiredError') {
+                    // Decode the expired token to get user data
+                    const decoded = jwt.decode(token);
+                    if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));
 
-                   // Decode the expired token to get user data
-                   const decoded = jwt.decode(token);
-                   if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));                   
-
-                    // checkUser
-                    if (!await checkUser(decoded)) next(createHttpError.NotFound(UserNotFoundInToken))
+                    // Check if user exists
+                    const { user, status } = await checkUser(decoded);
+                    if (!status) return next(createHttpError.NotFound(UserNotFoundInToken));
 
                     const expiredAt = new Date(err.expiredAt).getTime();
                     const now = new Date().getTime();
@@ -56,12 +42,27 @@ function auth(req, res, next) {
 
                     // Check if the token is within the refresh period
                     if (now - expiredAt > refreshPeriod) return next(createHttpError.Forbidden(TokenExpired));
-                    
 
-                    // Generate a new token
-                    const refreshed_jwt = jwtToken(decoded, '10s');
+                    // Generate new token
+                    const refreshed_jwt = jwtToken(user, '30s');
                     const newToken = refreshed_jwt.token;
-                    const userDTO = refreshed_jwt.userDTO;
+
+                    // Create userDTO
+                    const userDTO = {
+                        id: user.id,
+                        name: user.name,
+                        title: user.title,
+                        bio: user.bio,
+                        post_count: user.post_count,
+                        email: user.email,
+                        slug: user.slug,
+                        img: user.img,
+                        follower_count: user.follower_count,
+                        following_count: user.following_count,
+                        task_done: user.task_done,
+                        project_done: user.project_done,
+                        img_bg: user.img_bg
+                    };
 
                     // Attach the new token and user data to the request
                     req.session.user = userDTO;
@@ -77,35 +78,35 @@ function auth(req, res, next) {
             // If the token is valid, extract user data
             if (!verified) return next(createHttpError.Unauthorized(InvalidToken));
 
-            // checkUser
-            if (!await checkUser(verified)) next(createHttpError.NotFound(UserNotFoundInToken))
+            // Check if user exists
+            const { user, status } = await checkUser(verified);
+            if (!status) return next(createHttpError.NotFound(UserNotFoundInToken));
 
+            // Create userDTO
             const userDTO = {
-                id: verified.id,
-                name: verified.name,
-                title: verified.title,
-                bio: verified.bio,
-                post_count: verified.post_count,
-                email: verified.email,
-                slug: verified.slug,
-                img: verified.img,
-                follower_count: verified.follower_count,
-                following_count: verified.following_count,
-                task_done: verified.task_done,
-                project_done: verified.project_done,
-                img_bg: verified.img_bg
+                id: user.id,
+                name: user.name,
+                title: user.title,
+                bio: user.bio,
+                post_count: user.post_count,
+                email: user.email,
+                slug: user.slug,
+                img: user.img,
+                follower_count: user.follower_count,
+                following_count: user.following_count,
+                task_done: user.task_done,
+                project_done: user.project_done,
+                img_bg: user.img_bg
             };
 
             // Attach user data to the request
             req.session.user = userDTO;
 
-            // Continue to the next middleware or route handler
             next();
         });
-
     } catch (error) {
         next(error);
     }
 }
 
-export default auth;
+export default auth; 

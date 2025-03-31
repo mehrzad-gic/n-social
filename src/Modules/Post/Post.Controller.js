@@ -155,9 +155,10 @@ async function store(req, res, next) {
             User.increment('post_count', {
                 by: 1,
                 where: { id: req.session.user.id },
-                transaction
+                transaction 
             })
         ]);
+
 
         // Handle tags if provided
         if (tags && Array.isArray(tags) && tags.length > 0) {
