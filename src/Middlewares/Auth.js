@@ -61,7 +61,10 @@ function auth(req, res, next) {
                         following_count: user.following_count,
                         task_done: user.task_done,
                         project_done: user.project_done,
-                        img_bg: user.img_bg
+                        img_bg: user.img_bg,
+                        birthday: user.birthday,
+                        github: user.github,
+                        x: user.x
                     };
 
                     // Attach the new token and user data to the request
@@ -96,7 +99,10 @@ function auth(req, res, next) {
                 following_count: user.following_count,
                 task_done: user.task_done,
                 project_done: user.project_done,
-                img_bg: user.img_bg
+                img_bg: user.img_bg,
+                birthday: user.birthday,
+                github: user.github,
+                x: user.x
             };
 
             // Attach user data to the request

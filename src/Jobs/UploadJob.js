@@ -2,6 +2,7 @@ import { deleteImage, uploadImages } from '../Helpers/Upload.js';
 import Post from '../Modules/Post/PostModel.js';
 import Company from '../Modules/Company/CompanyModel.js';
 import UploadQueue from '../Queues/UpoladQueue.js';
+import pool from '../Configs/Mysql2.js';
 
 export default async (job) => {
     const { files, postId } = job.data; // Get files and postId from job data
@@ -108,21 +109,24 @@ export async function deleteFile(job){
 }
 
 
-export async function uploadFile(job){
-
-    const { file,table,img_field,data } = job.data;
+export async function uploadFile(job) {
+    const { file, table, img_field, data } = job.data;
 
     try {
-
         const result = await uploadImages(file);
 
-        await pool.query(`UPDATE ?? SET ?? = ? WHERE ?? = ?`,[table,img_field,JSON.stringify(result),id,data.id]);
+        console.log('💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅');
+        console.log(typeof result);
+        console.log(result);
+        console.log('💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅');
+
+        // Use backticks for table and column names
+        const query = `UPDATE \`${table}\` SET \`${img_field}\` = ? WHERE id = ?`;
+        await pool.query(query, [JSON.stringify(result), data.id]);
 
         console.log(`File uploaded successfully for ${table} ID: ${data.id}`);
-
     } catch (error) {
         console.error('Error in job processing:', error);
         throw new Error('File upload failed: ' + error.message);
     }
-
 }

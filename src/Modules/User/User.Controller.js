@@ -121,7 +121,7 @@ async function changeStatus(req,res,next) {
 async function update(req,res,next) {
 
     try {
-
+        
         const {error} = userValidation.validate(req.body);
         if(error) throw createHttpError(422, error.details[0].message);
 
@@ -148,35 +148,36 @@ async function update(req,res,next) {
             github: req.body.github,
             bio: req.body.bio,
             birthday: req.body.birthday,
-            user_name: req.body.user_name,
+            slug: req.body.slug,
             x: req.body.x,
         });
 
+        const data = {
+            id: user.id,
+            slug: user.slug
+        }
+
+        console.log(data);
+        
         // upload the req.files.img && delete the old img if exists
         if (req.files?.img && req.files.img) {
             await UploadQueue.add('uploadFile',{
                 file: req.files.img,
                 table: 'users',
                 img_field: 'img',
-                data: {
-                    id: user.id,
-                    slug: user.slug
-                }
+                data
             });
             // delete the old img if exists
             if(user.img) await deleteFile(user.img);
         }
 
         // upload the req.files.img_bg
-        if (req.files.img_bg) {
+        if (req?.files?.img_bg) {
             await UploadQueue.add('uploadFile',{
                 file: req.files.img_bg,
                 table: 'users',
                 img_field: 'img_bg',    
-                data: {
-                    id: user.id,
-                    slug: user.slug
-                }
+                data
             });
             // delete the old img_bg if exists
             if(user.img_bg) await deleteFile(user.img_bg);
@@ -185,7 +186,9 @@ async function update(req,res,next) {
         // If user found, send the user details in the response
         res.status(200).json({
             message: "User updated successfully",
-            user: newUser // Send the user object in the response
+            success: true,
+            user: newUser // Send the user object in the response,
+            // token: req.session.token
         });
 
     } catch (err){

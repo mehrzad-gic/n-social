@@ -24,7 +24,10 @@ function jwtToken(user, expire = '30s') {
         following_count: user.following_count,
         task_done: user.task_done,
         project_done: user.project_done,
-        img_bg: user.img_bg
+        img_bg: user.img_bg,
+        birthday: user.birthday,
+        github: user.github,
+        x: user.x
     };
 
     const token = jwt.sign(userDTO, process.env.SECRET_KEY, { expiresIn: expire });
