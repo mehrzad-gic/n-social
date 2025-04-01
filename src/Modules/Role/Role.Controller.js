@@ -146,15 +146,12 @@ async function index(req,res,next){
 
         });
 
-        console.log('--------------------------------✅✅✅✅✅✅----------------------------------------');
-        console.log(roles,result);
-        console.log('--------------------------------✅✅✅✅✅✅----------------------------------------');
-
         res.status(200).json({
             success:true,
             message:'Roles fetched successfully',
             roles
         })
+        
     } catch (error) {
         next(error);
     }

@@ -10,7 +10,7 @@ export const checkUser = async (userDTO) => {
         if(!user) return false;
         return { user, status: true }
     } catch(err){   
-        return { status: false }
+        return { user: null, status: false }
     }
 }
 
@@ -35,7 +35,7 @@ function auth(req, res, next) {
 
                     // Check if user exists
                     const { user, status } = await checkUser(decoded);
-                    if (!status) return next(createHttpError.NotFound(UserNotFoundInToken));
+                    if (!user) return next(createHttpError.NotFound(UserNotFoundInToken));
 
                     const expiredAt = new Date(err.expiredAt).getTime();
                     const now = new Date().getTime();
