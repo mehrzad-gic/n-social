@@ -1,8 +1,8 @@
-import * as Joi from 'joi';
-
-const roleSchema = Joi.object({
-    name:Joi.string().max(255).required(),
-    status:Joi.number().oneOf([0,1]).required()
+import joi from 'joi';
+// TypeError: Joi.string is not a function
+const roleSchema = joi.object({
+    name:joi.string().required("Name is required"),
+    status:joi.number().valid(0, 1).required("Status is required"),
 });
 
 export {roleSchema};

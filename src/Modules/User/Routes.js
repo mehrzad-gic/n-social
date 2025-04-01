@@ -1,9 +1,10 @@
 import { Router } from "express";
 const router = Router();
-import { update, show, destroy, index, changeStatus } from './User.Controller.js';
+import { update, show, destroy, index, changeStatus, create } from './User.Controller.js';
 import { upload } from "../../Middlewares/uploadMiddleware.js";
 
 router.get('/', index);
+router.post('/create', create);
 router.get('/show/:slug', show);
 router.put('/update/:slug', upload.fields([
     { name: 'img', maxCount: 1 },

@@ -11,7 +11,7 @@ async function create(req,res,next){
     try {
         
         const {error} = roleSchema.validate(req.body);
-        if(error) return next(createHttpError.BadRequest(error.message));
+        if(error) return next(createHttpError.BadRequest(error.details[0].message));
 
         const role = await Role.create(req.body);
 
@@ -75,6 +75,9 @@ async function update(req,res,next){
 
         const role = await Role.findByPk(req.params.id);
         if(!role) return next(createHttpError.NotFound('Role not found'));
+
+        const {error} = roleSchema.validate(req.body);
+        if(error) return next(createHttpError.BadRequest(error.details[0].message));
 
         await role.update(req.body);
 

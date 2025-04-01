@@ -12,6 +12,8 @@ import faqRoutes from '../Modules/Faq/Routes.js';
 import categoryPriceRoutes from '../Modules/CategoryPrice/Routes.js';
 import companyRoutes from '../Modules/Company/Routes.js'; // Assuming you have a Company module
 import userRoutes from '../Modules/User/Routes.js';
+import roleRoutes from '../Modules/Role/Routes.js';
+import permissionRoutes from '../Modules/Permission/Routes.js';
 
 function Routes(app) {
 
@@ -59,6 +61,11 @@ function Routes(app) {
     // User routes
     app.use('/users', auth, userRoutes);
 
+    // Role routes
+    app.use('/roles', auth, roleRoutes);
+
+    // Permission routes
+    app.use('/permissions', auth, permissionRoutes);
 
     // Test routes
     // app.use('/test', testRoutes);

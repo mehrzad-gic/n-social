@@ -5,7 +5,9 @@ import { userValidation } from "./validation.js";
 import { Op } from "sequelize";
 import UploadQueue from "../../Queues/UpoladQueue.js";
 import { deleteFile } from "../../Jobs/UploadJob.js";
-
+import sequelize from "../../Configs/Sequelize.js";
+import { makeSlug } from "../../Helpers/Helper.js";
+import { makeHashPassword } from "../../Helpers/Helper.js";
 
 async function index(req,res,next) {
 
@@ -231,6 +233,78 @@ async function destroy(req,res,next) {
 }
 
 
+export async function create(req,res,next) {
+
+    try {
+
+        const {name, title, roles, password, bio, img, img_bg, birthday, email} = req.body;
+
+        // check if user already exist
+        const existingUser = await User.findOne({ where: { email} })
+        if (existingUser) throw new createHttpError.Conflict('User Already Exists');
+
+        // transaction
+        const transaction = await sequelize.transaction();
+
+        // create user
+        const user = await User.create({
+            name,
+            email,
+            slug: await makeSlug(name, 'users'),
+            password: await makeHashPassword(password),
+            title,
+            bio,
+            birthday,
+        }, { transaction });
+
+        // attach roles to user
+        await user.setRoles(roles, { transaction });
+
+        // create user img
+        if (img) {
+            await UploadQueue.add('uploadFile',{
+                file: img,
+                table: 'users',
+                img_field: 'img',
+                data: {
+                    id: user.id,
+                    slug: user.slug
+                }
+            }, { transaction });
+        }
+
+        // create user img_bg
+        if (img_bg) {
+            await UploadQueue.add('uploadFile',{
+                file: img_bg,
+                table: 'users',
+                img_field: 'img_bg',
+                data: {
+                    id: user.id,
+                    slug: user.slug
+                }
+            }, { transaction });
+        }
+
+        // commit the transaction
+        await transaction.commit();
+
+        // send the response
+        res.status(201).json({
+            message: "User created successfully",
+            user
+        });
+        
+
+    } catch (err) {
+
+        // rollback the transaction
+        await transaction.rollback();
+        console.log(err);
+        next(err);
+    }
+
+}
 
 
 export {index,show,changeStatus,update,destroy};

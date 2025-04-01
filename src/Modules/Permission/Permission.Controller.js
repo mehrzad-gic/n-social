@@ -16,7 +16,7 @@ async function create(req,res,next){
         res.status(201).json({
             success:true,
             message:'Permission created successfully',
-            data:permission
+            permission
         })
 
     } catch (error) {
@@ -36,7 +36,7 @@ async function index(req,res,next){
         res.status(200).json({
             success:true,
             message:'Permissions fetched successfully',
-            data:permissions
+            permissions
         });
 
     } catch (error) {
@@ -57,7 +57,7 @@ async function show(req,res,next){
         res.status(200).json({
             success:true,
             message:'Permission fetched successfully',
-            data:permission
+            permission
         })
 
     } catch (error) {
