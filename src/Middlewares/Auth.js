@@ -30,6 +30,7 @@ function auth(req, res, next) {
                 if (err.name === 'TokenExpiredError') {
                     // Decode the expired token to get user data
                     const decoded = jwt.decode(token);
+                    
                     if (!decoded) return next(createHttpError.Unauthorized(InvalidToken));
 
                     // Check if user exists

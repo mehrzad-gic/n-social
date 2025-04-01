@@ -3,6 +3,7 @@ import joi from 'joi';
 const roleSchema = joi.object({
     name:joi.string().required("Name is required"),
     status:joi.number().valid(0, 1).required("Status is required"),
+    permissions:joi.array().items(joi.string())
 });
 
 export {roleSchema};

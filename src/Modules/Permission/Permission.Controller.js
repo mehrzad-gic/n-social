@@ -2,7 +2,7 @@ import Permission from './PermissionModel.js';
 import { permissionSchema } from './validation.js';
 import createHttpError from 'http-errors';
 
-
+ 
 // create permission
 async function create(req,res,next){
 

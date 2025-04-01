@@ -129,10 +129,22 @@ export default function Associations() {
     Project.hasMany(ProjectSkill, { foreignKey: 'project_id' });
     Project.hasMany(ProjectTask, { foreignKey: 'project_id' });
 
-    // Other associations
+    // Role & Permission associations
     PermissionRole.belongsTo(Permission, { foreignKey: 'permission_id' });
     PermissionRole.belongsTo(Role, { foreignKey: 'role_id' });
+    Role.hasMany(PermissionRole, { foreignKey: 'role_id' });
+    User.hasMany(RoleUser, { foreignKey: 'user_id' });
+    RoleUser.belongsTo(Role, { foreignKey: 'role_id' });
+    RoleUser.belongsTo(User, { foreignKey: 'user_id' });
 
+    // Role & User associations
+    Role.hasMany(RoleUser, { foreignKey: 'role_id' });
+    RoleUser.belongsTo(Role, { foreignKey: 'role_id' });
+    RoleUser.belongsTo(User, { foreignKey: 'user_id' });
+
+    
+
+    // Other associations
     PlanUser.belongsTo(Plan, { foreignKey: 'plan_id' });
     PlanUser.belongsTo(User, { foreignKey: 'user_id' });
 
