@@ -1,7 +1,7 @@
 import createHttpError from "http-errors";
 import User from "./UserModel.js";
 // import { makeSlug } from "../../Helpers/Helper";
-import { userValidation } from "./validation.js";
+import { userValidation, updateInfoValidation } from "./validation.js";
 import { Op } from "sequelize";
 import UploadQueue from "../../Queues/UpoladQueue.js";
 import { deleteFile } from "../../Jobs/UploadJob.js";
@@ -10,6 +10,7 @@ import { makeSlug } from "../../Helpers/Helper.js";
 import { makeHashPassword } from "../../Helpers/Helper.js";
 import Role from "../Role/RoleModel.js";
 import pool from "../../Configs/Mysql2.js";
+
 
 async function index(req, res, next) {
 
@@ -162,26 +163,18 @@ async function update(req, res, next) {
         const { error } = userValidation.validate(req.body);
         if (error) throw createHttpError(422, error.details[0].message);
 
-        console.log('--------------------------------');
-        console.log(req.files?.img || null);
-        console.log(req.files?.img_bg || null);
-        console.log(req.body);
-        console.log('--------------------------------');
-        
-        return res.json('ccccccc')
-
         const { slug } = req.params; // Extract slug from request parameters
-
+        if (!slug) throw createHttpError(422, "Slug is required");
         // Find the user by slug in the database
         const user = await User.findOne({
             where: { slug } // Use the slug to find the user
         });
 
-        if (req.body.user_name != user.user_name) {
+        if (req.body.slug != user.slug) {
             const userCheck = await User.findOne({
-                where: { user_name: req.body.user_name }
+                where: { slug: req.body.slug }
             });
-            if (userCheck) throw createHttpError(422, "User name already exists");
+            if (userCheck) throw createHttpError(422, "Slug already exists");
         }
 
         if (!user) throw createHttpError(404, `User with slug '${slug}' not found`); // If user not found, throw a 404 error
@@ -202,12 +195,11 @@ async function update(req, res, next) {
             slug: user.slug
         }
 
-        console.log(data);
-
+        console.log('✅✅✅✅✅Done 1✅✅✅✅✅');
         // upload the req.files.img && delete the old img if exists
         if (req.files?.img && req.files.img) {
             await UploadQueue.add('uploadFile', {
-                file: req.files.img,
+                file: req.files.img[0],
                 table: 'users',
                 img_field: 'img',
                 data
@@ -216,10 +208,12 @@ async function update(req, res, next) {
             if (user.img) await deleteFile(user.img);
         }
 
+        console.log('✅✅✅✅✅Done 2✅✅✅✅✅');
+        
         // upload the req.files.img_bg
         if (req?.files?.img_bg) {
             await UploadQueue.add('uploadFile', {
-                file: req.files.img_bg,
+                file: req.files.img_bg[0],
                 table: 'users',
                 img_field: 'img_bg',
                 data
@@ -227,6 +221,97 @@ async function update(req, res, next) {
             // delete the old img_bg if exists
             if (user.img_bg) await deleteFile(user.img_bg);
         }
+
+        console.log('✅✅✅✅✅Done 3✅✅✅✅✅');
+
+        // If user found, send the user details in the response
+        res.status(200).json({
+            message: "User updated successfully",
+            success: true,
+            user: newUser // Send the user object in the response,
+            // token: req.session.token
+        });
+
+    } catch (err) {
+
+        next(err); // Pass the error to the next middleware for handling
+    }
+
+}
+
+
+async function updateInfo(req, res, next) {
+
+    try {
+
+        const { error } = updateInfoValidation.validate(req.body);
+        if (error) throw createHttpError(422, error.details[0].message);
+
+        const { slug } = req.params; // Extract slug from request parameters
+        if (!slug) throw createHttpError(422, "Slug is required");
+        // Find the user by slug in the database
+        const user = await User.findOne({
+            where: { slug } // Use the slug to find the user
+        });
+
+        if (req.body.slug != user.slug) {
+            const userCheck = await User.findOne({
+                where: { slug: req.body.slug }
+            });
+            if (userCheck) throw createHttpError(422, "Slug already exists");
+        }
+
+        if (!user) throw createHttpError(404, `User with slug '${slug}' not found`); // If user not found, throw a 404 error
+
+        // update the user
+        const newUser = await user.update({
+            name: req.body.name,
+            title: req.body.title,
+            github: req.body.github,
+            bio: req.body.bio,
+            birthday: req.body.birthday,
+            slug: req.body.slug,
+            x: req.body.x,
+        });
+
+        const data = {
+            id: user.id,
+            slug: user.slug
+        }
+
+        console.log(req.files.img);
+        // upload the req.files.img && delete the old img if exists
+        if (req.files?.img && req.files.img) {
+
+            // delete the old img if exists
+            if (user.img) await deleteFile({data:{file:user.img}});
+          
+            await UploadQueue.add('uploadFile', {
+                files: req.files.img,
+                table: 'users',
+                img_field: 'img',
+                data
+            });
+        }
+
+        // upload the req.files.img_bg
+        if (req?.files?.img_bg) {
+
+            // delete the old img_bg if exists
+            if (user.img_bg){
+                await UploadQueue.add('deleteFile',{file:user.img_bg})
+            }
+
+            await UploadQueue.add('uploadFile', {
+                files: req.files.img_bg[0],
+                table: 'users',
+                img_field: 'img_bg',
+                data
+            });
+
+        }
+
+        console.log('✅✅✅✅✅Done 3✅✅✅✅✅');
 
         // If user found, send the user details in the response
         res.status(200).json({
@@ -350,4 +435,4 @@ export async function create(req, res, next) {
 }
 
 
-export { index, show, changeStatus, update, destroy };
+export { index, show, changeStatus, update, updateInfo, destroy };

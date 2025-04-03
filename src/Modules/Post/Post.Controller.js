@@ -171,6 +171,7 @@ async function store(req, res, next) {
 
         // Queue the file upload job
         if (req.files && req.files.length > 0) {
+
             await UploadQueue.add('post-upload', {
                 files: req.files,
                 postId: post.id
@@ -181,6 +182,8 @@ async function store(req, res, next) {
                     delay: 2000
                 }
             });
+            console.log('✅✅✅✅✅2Done✅✅✅✅✅')
+
         }
 
         // Commit transaction
