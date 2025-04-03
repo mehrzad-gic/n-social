@@ -4,7 +4,10 @@ import { update, show, destroy, index, changeStatus, create, updateInfo } from '
 import { upload } from "../../Middlewares/uploadMiddleware.js";
 
 router.get('/', index);
-router.post('/create', create);
+router.post('/create', upload.fields([
+    { name: 'img', maxCount: 1 },
+    { name: 'img_bg', maxCount: 1 }
+])  , create);
 router.get('/show/:slug', show);
 router.put('/update/:slug', upload.fields([
     { name: 'img', maxCount: 1 },

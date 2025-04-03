@@ -5,12 +5,12 @@ import { userValidation, updateInfoValidation } from "./validation.js";
 import { Op } from "sequelize";
 import UploadQueue from "../../Queues/UpoladQueue.js";
 import { deleteFile } from "../../Jobs/UploadJob.js";
-import sequelize from "../../Configs/Sequelize.js";
 import { makeSlug } from "../../Helpers/Helper.js";
 import { makeHashPassword } from "../../Helpers/Helper.js";
 import Role from "../Role/RoleModel.js";
 import pool from "../../Configs/Mysql2.js";
 import RoleUser from "../RoleUser/RoleUserModel.js";
+import sequelize from "../../Configs/Sequelize.js";
 
 
 async function index(req, res, next) {
@@ -85,7 +85,7 @@ async function show(req, res, next) {
         const rows = result[0]; // result[0] is the array of rows
 
         // Check if the user exists
-        if (!rows || rows.length === 0) {
+        if (!rows || rows?.length === 0) {
             throw new createHttpError(404, `User with slug '${slug}' not found`);
         }
 
@@ -159,14 +159,17 @@ async function changeStatus(req, res, next) {
 
 async function update(req, res, next) {
 
+    let transaction = null;
+
     try {
 
         const { error } = userValidation.validate(req.body);
         if (error) throw createHttpError(422, error.details[0].message);
-        console.log(req.body.roles);
-        console.log(req.body.roles.length);
+        console.log('update',req.body);
 
         const { slug } = req.params; // Extract slug from request parameters
+
+        transaction = await sequelize.transaction();
 
         if (!slug) throw createHttpError(422, "Slug is required");
         // Find the user by slug in the database
@@ -192,19 +195,19 @@ async function update(req, res, next) {
             birthday: req.body.birthday,
             slug: req.body.slug,
             x: req.body.x,
-        });
+        }, { transaction });
 
         // attach roles to user
-        if (req.body.roles) {
+        if (req.body?.roles?.length > 0) {
 
             // delete the old roles
-            await RoleUser.destroy({where:{user_id:newUser.id}});
+            await RoleUser.destroy({where:{user_id:newUser.id}}, { transaction });
           
             // attach the new roles
             for (const role of req.body.roles) {
                 let checkRole = await Role.findOne({where:{id:role}})
                 if (!checkRole) throw createHttpError(422, "Role not found");
-                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id });
+                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id }, { transaction });
             }
 
         }
@@ -247,6 +250,9 @@ async function update(req, res, next) {
 
         }
 
+        // commit the transaction
+        await transaction.commit();
+
         // If user found, send the user details in the response
         res.status(200).json({
             message: "User updated successfully",
@@ -257,6 +263,7 @@ async function update(req, res, next) {
 
     } catch (err) {
 
+        if (transaction && transaction !== null) await transaction.rollback();
         next(err); // Pass the error to the next middleware for handling
     }
 
@@ -383,20 +390,23 @@ async function destroy(req, res, next) {
 
 export async function create(req, res, next) {
 
+    let transaction = null;
+
     try {
 
         const { name, title, roles, password, bio, img, img_bg, birthday, email } = req.body;
+        console.log('create',req.body);  
 
         // check if user already exist
         const existingUser = await User.findOne({ where: { email } })
         if (existingUser) throw new createHttpError.Conflict('User Already Exists');
 
         // transaction
-        const transaction = await sequelize.transaction();
+        transaction = await sequelize.transaction();
 
         // create user
         const newUser = await User.create({
-            name,
+            name, 
             email,
             slug: await makeSlug(name, 'users'),
             password: await makeHashPassword(password),
@@ -406,11 +416,11 @@ export async function create(req, res, next) {
         }, { transaction });
 
         // attach roles to user
-        if (roles) {
+        if (roles && roles?.length > 0) {
             for (const role of roles) {
                 let checkRole = await Role.findOne({where:{id:role}})
                 if (!checkRole) throw createHttpError(422, "Role not found");
-                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id });
+                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id }, { transaction });
             }
         }
 
@@ -426,7 +436,7 @@ export async function create(req, res, next) {
                 table: 'users',
                 img_field: 'img',
                 data
-            }, { transaction });
+            });
         }
 
         // create user img_bg
@@ -436,7 +446,7 @@ export async function create(req, res, next) {
                 table: 'users',
                 img_field: 'img_bg',
                 data
-            }, { transaction });
+            });
         }
 
         // commit the transaction
@@ -445,14 +455,16 @@ export async function create(req, res, next) {
         // send the response
         res.status(201).json({
             message: "User created successfully",
-            user: newUser
+            user: newUser,
+            success: true
         });
 
 
     } catch (err) {
 
         // rollback the transaction
-        await transaction.rollback();
+        if (transaction && transaction !== null) await transaction.rollback();
+
         console.log(err);
         next(err);
     }
