@@ -10,6 +10,7 @@ import { makeSlug } from "../../Helpers/Helper.js";
 import { makeHashPassword } from "../../Helpers/Helper.js";
 import Role from "../Role/RoleModel.js";
 import pool from "../../Configs/Mysql2.js";
+import RoleUser from "../RoleUser/RoleUserModel.js";
 
 
 async function index(req, res, next) {
@@ -162,22 +163,25 @@ async function update(req, res, next) {
 
         const { error } = userValidation.validate(req.body);
         if (error) throw createHttpError(422, error.details[0].message);
+        console.log(req.body.roles);
+        console.log(req.body.roles.length);
 
         const { slug } = req.params; // Extract slug from request parameters
+
         if (!slug) throw createHttpError(422, "Slug is required");
         // Find the user by slug in the database
         const user = await User.findOne({
-            where: { slug } // Use the slug to find the user
+            where: { slug: slug } // Use the slug to find the user
         });
+        if (!user) throw createHttpError(404, `User with slug '${slug}' not found`); // If user not found, throw a 404 error
 
-        if (req.body.slug != user.slug) {
+
+        if (req.body?.slug && req.body.slug != user.slug) {
             const userCheck = await User.findOne({
                 where: { slug: req.body.slug }
             });
             if (userCheck) throw createHttpError(422, "Slug already exists");
         }
-
-        if (!user) throw createHttpError(404, `User with slug '${slug}' not found`); // If user not found, throw a 404 error
 
         // update the user
         const newUser = await user.update({
@@ -190,39 +194,52 @@ async function update(req, res, next) {
             x: req.body.x,
         });
 
-        const data = {
-            id: user.id,
-            slug: user.slug
+        // attach roles to user
+        if (req.body.roles) {
+            for (const role of req.body.roles) {
+                let checkRole = await Role.findOne({where:{id:role}})
+                if (!checkRole) throw createHttpError(422, "Role not found");
+                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id });
+            }
         }
 
-        console.log('✅✅✅✅✅Done 1✅✅✅✅✅');
+        const data = {
+            id: newUser.id,
+            slug: newUser.slug
+        }
+
         // upload the req.files.img && delete the old img if exists
         if (req.files?.img && req.files.img) {
+
+            // delete the old img if exists
+            if (newUser.img){
+                await UploadQueue.add('deleteFile',{file:newUser.img})
+            }
+          
             await UploadQueue.add('uploadFile', {
-                file: req.files.img[0],
+                files: req.files.img,
                 table: 'users',
                 img_field: 'img',
                 data
             });
-            // delete the old img if exists
-            if (user.img) await deleteFile(user.img);
         }
 
-        console.log('✅✅✅✅✅Done 2✅✅✅✅✅');
-        
         // upload the req.files.img_bg
         if (req?.files?.img_bg) {
+
+            // delete the old img_bg if exists
+            if (newUser.img_bg){
+                await UploadQueue.add('deleteFile',{file:newUser.img_bg})
+            }
+
             await UploadQueue.add('uploadFile', {
-                file: req.files.img_bg[0],
+                files: req.files.img_bg,
                 table: 'users',
                 img_field: 'img_bg',
                 data
             });
-            // delete the old img_bg if exists
-            if (user.img_bg) await deleteFile(user.img_bg);
-        }
 
-        console.log('✅✅✅✅✅Done 3✅✅✅✅✅');
+        }
 
         // If user found, send the user details in the response
         res.status(200).json({
@@ -279,7 +296,6 @@ async function updateInfo(req, res, next) {
             slug: user.slug
         }
 
-        console.log(req.files.img);
         // upload the req.files.img && delete the old img if exists
         if (req.files?.img && req.files.img) {
 
@@ -310,8 +326,6 @@ async function updateInfo(req, res, next) {
             });
 
         }
-
-        console.log('✅✅✅✅✅Done 3✅✅✅✅✅');
 
         // If user found, send the user details in the response
         res.status(200).json({
@@ -375,7 +389,7 @@ export async function create(req, res, next) {
         const transaction = await sequelize.transaction();
 
         // create user
-        const user = await User.create({
+        const newUser = await User.create({
             name,
             email,
             slug: await makeSlug(name, 'users'),
@@ -386,7 +400,18 @@ export async function create(req, res, next) {
         }, { transaction });
 
         // attach roles to user
-        await user.setRoles(roles, { transaction });
+        if (roles) {
+            for (const role of roles) {
+                let checkRole = await Role.findOne({where:{id:role}})
+                if (!checkRole) throw createHttpError(422, "Role not found");
+                await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id });
+            }
+        }
+
+        const data = {
+            id: newUser.id,
+            slug: newUser.slug
+        }
 
         // create user img
         if (img) {
@@ -394,10 +419,7 @@ export async function create(req, res, next) {
                 file: img,
                 table: 'users',
                 img_field: 'img',
-                data: {
-                    id: user.id,
-                    slug: user.slug
-                }
+                data
             }, { transaction });
         }
 
@@ -407,10 +429,7 @@ export async function create(req, res, next) {
                 file: img_bg,
                 table: 'users',
                 img_field: 'img_bg',
-                data: {
-                    id: user.id,
-                    slug: user.slug
-                }
+                data
             }, { transaction });
         }
 
@@ -420,7 +439,7 @@ export async function create(req, res, next) {
         // send the response
         res.status(201).json({
             message: "User created successfully",
-            user
+            user: newUser
         });
 
 
