@@ -162,6 +162,14 @@ async function update(req, res, next) {
         const { error } = userValidation.validate(req.body);
         if (error) throw createHttpError(422, error.details[0].message);
 
+        console.log('--------------------------------');
+        console.log(req.files?.img || null);
+        console.log(req.files?.img_bg || null);
+        console.log(req.body);
+        console.log('--------------------------------');
+        
+        return res.json('ccccccc')
+
         const { slug } = req.params; // Extract slug from request parameters
 
         // Find the user by slug in the database
