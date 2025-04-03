@@ -196,11 +196,17 @@ async function update(req, res, next) {
 
         // attach roles to user
         if (req.body.roles) {
+
+            // delete the old roles
+            await RoleUser.destroy({where:{user_id:newUser.id}});
+          
+            // attach the new roles
             for (const role of req.body.roles) {
                 let checkRole = await Role.findOne({where:{id:role}})
                 if (!checkRole) throw createHttpError(422, "Role not found");
                 await RoleUser.create({ user_id: newUser.id, role_id: checkRole.id });
             }
+
         }
 
         const data = {
