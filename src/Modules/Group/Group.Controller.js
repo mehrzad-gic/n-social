@@ -19,7 +19,7 @@ async function index(req,res,next) {
         const groups = await Group.findAll({
             limit:limit ? parseInt(limit) : 10,
             offset:offset ? parseInt(offset) : 0,
-            attributes:['id','name','des','img','status','slug','type','createdAt','updatedAt'],
+            attributes:['id','name','members','des','img','status','slug','type','createdAt','updatedAt'],
             where:{
                 status:status ? parseInt(status) : {
                     [Op.in]:[0,1]
