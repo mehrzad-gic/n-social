@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { index, create, update, destroy, show, change_status, posts, members } from './Group.Controller.js';
+import { index, create, update, destroy, show, change_status, posts, members, add_member, remove_member } from './Group.Controller.js';
 import { upload } from '../../Middlewares/uploadMiddleware.js';
 const router = Router();
 

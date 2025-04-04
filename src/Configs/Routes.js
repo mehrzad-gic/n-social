@@ -14,6 +14,7 @@ import companyRoutes from '../Modules/Company/Routes.js'; // Assuming you have a
 import userRoutes from '../Modules/User/Routes.js';
 import roleRoutes from '../Modules/Role/Routes.js';
 import permissionRoutes from '../Modules/Permission/Routes.js';
+import groupRoutes from '../Modules/Group/Routes.js';
 
 function Routes(app) {
 
@@ -66,6 +67,9 @@ function Routes(app) {
 
     // Permission routes
     app.use('/permissions', auth, permissionRoutes);
+
+    // Group routes
+    app.use('/groups', auth, groupRoutes);
 
     // Test routes
     // app.use('/test', testRoutes);

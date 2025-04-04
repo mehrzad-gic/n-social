@@ -17,15 +17,17 @@ const Group = sequelize.define('Group', {
     },
     img: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true,
     },
     members: {
         type: DataTypes.BIGINT,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
     },
     posts: {
         type: DataTypes.BIGINT,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
     },
     status: {
         type: DataTypes.TINYINT,

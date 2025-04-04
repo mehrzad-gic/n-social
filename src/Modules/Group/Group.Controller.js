@@ -20,19 +20,12 @@ async function index(req,res,next) {
             limit:limit,
             offset:offset,
             attributes:['id','name','des','img','status','type','createdAt','updatedAt'],
-            include:[
-                {
-                    model:User,
-                    as:'user',
-                    attributes:['id','name','email','slug','img']
-                }
-            ],
             where:{
                 status:status ? parseInt(status) : {
                     [Op.in]:[0,1]
                 },
                 name:{
-                    [Op.like]:`%${search}%`
+                    [Op.like]:`%${search || ''}%`
                 }
             }
         });
@@ -41,8 +34,6 @@ async function index(req,res,next) {
             success:true,
             groups,
             message:"Groups fetched successfully",
-            token:req.session.token,
-            user:req.session.user,
         })
         
     } catch (error) {
@@ -76,10 +67,12 @@ async function create(req,res,next) {
             user_id:req.session.user.id,
         });
 
-        if(req.file){
+        if(req.body.img){
             await UploadQueue.add('uploadFile',{
-                file:req.file,table:'groups',img_field:'img',data:group
+                file:req.body.img,table:'groups',img_field:'img',data:group
             });
+        } else {
+            throw createHttpError.BadRequest("Image is required");
         }
 
         res.json({
@@ -107,14 +100,14 @@ async function update(req,res,next) {
         const group = await Group.findOne({where:{slug:req.params.slug}});
         if(!group) return next(createHttpError.NotFound("Group not found"));
 
-        let slug = null;
+        let slug = group.slug;
         if(req.body.slug && req.body.slug != group.slug) {
             const group = await Group.findOne({where:{slug:req.body.slug}});
             if(group) return next(createHttpError.BadRequest("Slug already exists"));
             slug = req.body.slug;
-        } else {
-            slug = await makeSlug(req.body.name,'groups');
         }
+
+        if(!slug) throw createHttpError.BadRequest("Slug is required");
 
         await group.update({
             slug:slug,
@@ -124,9 +117,9 @@ async function update(req,res,next) {
             type:req.body.type ? parseInt(req.body.type) : 0,
         });
 
-        if(req.file) {
+        if(req.body.img) {
             await UploadQueue.add('deleteFile',{file:group.img});
-            await UploadQueue.add('uploadFile',{file:req.file,table:'groups',img_field:'img',data:group});
+            await UploadQueue.add('uploadFile',{file:req.body.img,table:'groups',img_field:'img',data:group});
         }
         
         res.json({
@@ -332,7 +325,7 @@ async function remove_member(req,res,next) {
 }
 
 
-export default {
+export {
     index,
     create,
     update,
