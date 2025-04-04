@@ -7,7 +7,7 @@ const createGroupSchema = Joi.object({
     // img:Joi.string().required("Image is required"),
     type:Joi.number().valid(0,1).required("Type is required"),
     // optional slug
-    slug:Joi.string().optional(),
+    slug:Joi.optional(),
 })
 
 const updateGroupSchema = Joi.object({

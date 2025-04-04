@@ -17,9 +17,9 @@ async function index(req,res,next) {
         const offset = (page - 1) * limit;
 
         const groups = await Group.findAll({
-            limit:limit,
-            offset:offset,
-            attributes:['id','name','des','img','status','type','createdAt','updatedAt'],
+            limit:limit ? parseInt(limit) : 10,
+            offset:offset ? parseInt(offset) : 0,
+            attributes:['id','name','des','img','status','slug','type','createdAt','updatedAt'],
             where:{
                 status:status ? parseInt(status) : {
                     [Op.in]:[0,1]
@@ -67,9 +67,9 @@ async function create(req,res,next) {
             user_id:req.session.user.id,
         });
 
-        if(req.body.img){
+        if(req.file){
             await UploadQueue.add('uploadFile',{
-                file:req.body.img,table:'groups',img_field:'img',data:group
+                files:req.file,table:'groups',img_field:'img',data:group
             });
         } else {
             throw createHttpError.BadRequest("Image is required");
@@ -117,9 +117,9 @@ async function update(req,res,next) {
             type:req.body.type ? parseInt(req.body.type) : 0,
         });
 
-        if(req.body.img) {
+        if(req.file) {
             await UploadQueue.add('deleteFile',{file:group.img});
-            await UploadQueue.add('uploadFile',{file:req.body.img,table:'groups',img_field:'img',data:group});
+            await UploadQueue.add('uploadFile',{files:req.file,table:'groups',img_field:'img',data:group});
         }
         
         res.json({
@@ -169,11 +169,10 @@ async function show(req,res,next) {
         
         const group = await Group.findOne({
             where:{slug:req.params.slug},
-            attributes:['id','name','des','img','status','type','createdAt','updatedAt'],
+            attributes:['id','name','des','img','status','slug','type','createdAt','updatedAt'],
             include:[
                 {
                     model:User,
-                    as:'user',
                     attributes:['id','name','email','slug','img']
                 }
             ]
@@ -184,8 +183,6 @@ async function show(req,res,next) {
             success:true,
             group,
             message:"Group fetched successfully",
-            token:req.session.token,
-            user:req.session.user,
         })
         
     } catch (error) {

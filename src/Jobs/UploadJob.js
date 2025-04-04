@@ -30,6 +30,11 @@ export async function uploadFile(job) {
     const { files, table, img_field, data } = job.data;
 
     try {
+
+        console.log('files',files);
+
+        if(files.length == 0) return;
+        
         const result = await uploadImages(files);
 
         // console.log('💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩💩✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅');
