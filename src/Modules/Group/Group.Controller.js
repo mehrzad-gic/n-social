@@ -17,7 +17,7 @@ async function index(req,res,next) {
         const offset = (page - 1) * limit;
 
         const groups = await Group.findAll({
-            limit:limit ? parseInt(limit) : 10,
+            limit:limit ? parseInt(limit) : 20,
             offset:offset ? parseInt(offset) : 0,
             attributes:['id','name','members','des','img','status','slug','type','createdAt','updatedAt'],
             where:{
@@ -28,14 +28,9 @@ async function index(req,res,next) {
                     [Op.like]:`%${search || ''}%`
                 }
             },
-            include:[
-                {
-                    model:User,
-                    attributes:['id','name','email','slug','img']
-                },
-            ]
         });
-
+        console.log(groups);
+        
         res.json({
             success:true,
             groups,

@@ -31,7 +31,7 @@ const Group = sequelize.define('Group', {
     },
     status: {
         type: DataTypes.TINYINT,
-        allowNull: false
+        defaultValue: 1
     },
     slug: {
         type: DataTypes.TEXT,
