@@ -27,7 +27,13 @@ async function index(req,res,next) {
                 name:{
                     [Op.like]:`%${search || ''}%`
                 }
-            }
+            },
+            include:[
+                {
+                    model:User,
+                    attributes:['id','name','email','slug','img']
+                },
+            ]
         });
 
         res.json({
